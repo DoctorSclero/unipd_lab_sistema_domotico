@@ -1,0 +1,3 @@
+/home/pietroballarin/Documents/projects/cpp/sistema_domotico/build/CMakeFiles/sistema_domotico_tester.dir
+/home/pietroballarin/Documents/projects/cpp/sistema_domotico/build/CMakeFiles/edit_cache.dir
+/home/pietroballarin/Documents/projects/cpp/sistema_domotico/build/CMakeFiles/rebuild_cache.dir
