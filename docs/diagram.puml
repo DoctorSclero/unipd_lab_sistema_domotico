@@ -1,0 +1,50 @@
+@startuml sistema_domotico
+
+namespace sistema_domotico {
+    abstract class Device {
+        - ID : int
+        - name : string
+        - power : double
+        - start_time : int
+        - priotity : int
+        
+        + start() : void
+        + stop() : void
+        + {abstract} update(time: int) : bool
+    }
+
+    class ManualDevice {
+        - stop_time : int
+        + update(time: int) : bool
+    }
+
+    class CycleDevice {
+        - cycle_duration : int
+        + update(time: int) : bool
+    }
+
+    class Home {
+        - current_time : int
+        - network_power : double
+        + subscribe(device: Device) : void
+        + get_time() : int
+    }
+
+    class Logger {
+        - file : file
+        + Logger (log_path: string)
+        + log(message: string)
+    }
+}
+
+namespace std {
+    class vector {}
+}
+
+Home o-- Logger : home
+Logger *-- Home : logger
+vector *-- Home : devices
+Device o-- vector : array
+ManualDevice --|> Device
+CycleDevice --|> Device
+@enduml

@@ -51,7 +51,7 @@ build cmake_object_order_depends_target_sistema_domotico_tester: phony || .
 
 build CMakeFiles/sistema_domotico_tester.dir/src/main.cpp.o: CXX_COMPILER__sistema_domotico_tester_unscanned_Debug /home/pietroballarin/Documents/projects/cpp/sistema_domotico/src/main.cpp || cmake_object_order_depends_target_sistema_domotico_tester
   DEP_FILE = CMakeFiles/sistema_domotico_tester.dir/src/main.cpp.o.d
-  FLAGS = -g
+  FLAGS = -g -std=gnu++11
   INCLUDES = -I/home/pietroballarin/Documents/projects/cpp/sistema_domotico/include
   OBJECT_DIR = CMakeFiles/sistema_domotico_tester.dir
   OBJECT_FILE_DIR = CMakeFiles/sistema_domotico_tester.dir/src

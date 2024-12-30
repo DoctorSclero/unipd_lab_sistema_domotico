@@ -1,7 +1,7 @@
 [
 {
   "directory": "/home/pietroballarin/Documents/projects/cpp/sistema_domotico/build",
-  "command": "/usr/bin/g++ -I/home/pietroballarin/Documents/projects/cpp/sistema_domotico/include -g -o CMakeFiles/sistema_domotico_tester.dir/src/main.cpp.o -c /home/pietroballarin/Documents/projects/cpp/sistema_domotico/src/main.cpp",
+  "command": "/usr/bin/g++ -I/home/pietroballarin/Documents/projects/cpp/sistema_domotico/include -g -std=gnu++11 -o CMakeFiles/sistema_domotico_tester.dir/src/main.cpp.o -c /home/pietroballarin/Documents/projects/cpp/sistema_domotico/src/main.cpp",
   "file": "/home/pietroballarin/Documents/projects/cpp/sistema_domotico/src/main.cpp",
   "output": "CMakeFiles/sistema_domotico_tester.dir/src/main.cpp.o"
 }
