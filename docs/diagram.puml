@@ -11,6 +11,7 @@ namespace sistema_domotico {
         + start() : void
         + stop() : void
         + {abstract} update(time: int) : bool
+        + operator<(Device& device) : bool
     }
 
     class ManualDevice {
@@ -28,6 +29,13 @@ namespace sistema_domotico {
         - network_power : double
         + subscribe(device: Device) : void
         + get_time() : int
+        + start_device(device: Device) : void
+        + stop_device(device: Device) : void
+        + set_time(time: int) : void
+        + set_start(time: int, device: Device) : void
+        + set_stop(time: int, device: Device) : void
+        + show( ) : void
+        + show(device: Device) : void
     }
 
     class Logger {
