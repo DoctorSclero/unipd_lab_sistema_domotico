@@ -1,4 +1,6 @@
 @startuml sistema_domotico
+skinparam linetype ortho
+left to right direction
 
 namespace sistema_domotico {
     abstract class Device {
@@ -7,40 +9,51 @@ namespace sistema_domotico {
         - power : double
         - start_time : int
         - priotity : int
+        - running: bool
         
-        + start() : void
-        + stop() : void
-        + {abstract} update(time: int) : bool
+        + start( ) : void
+        + stop( ) : void
+        + {abstract} update(time: int) : void
+        + get_power( ) : double
+        + get_name( ) : string
+        + get_priority( ) : int
+        + is_running( ) : bool
+        + set_home(home: Home&) : void
         + operator<(Device& device) : bool
     }
 
     class ManualDevice {
         - stop_time : int
-        + update(time: int) : bool
+        + ManualDevice(ID: int, name: string, power: double, start_time: int, stop_time: int)
+        + ManualDevice(ID: int, name: string, power: double, start_time: int, stop_time: int, keep_running: bool)
+        + update( ) : void 
     }
 
     class CycleDevice {
         - cycle_duration : int
-        + update(time: int) : bool
+        + CycleDevice(ID: int, name: string, power: double, start_time: int, cycle_duration: int)
+        + CycleDevice(ID: int, name: string, power: double, start_time: int, cycle_duration: int, keep_running: bool)
+        + update( ) : void
     }
 
     class Home {
         - current_time : int
         - network_power : double
         + subscribe(device: Device) : void
-        + get_time() : int
-        + start_device(device: Device) : void
-        + stop_device(device: Device) : void
+        + get_time( ) : int
+        + start_device(device_name: string) : void
+        + stop_device(device_name: string) : void
         + set_time(time: int) : void
-        + set_start(time: int, device: Device) : void
-        + set_stop(time: int, device: Device) : void
+        + set_start(time: int, device_name: string) : void
+        + set_stop(time: int, device_name: string) : void
         + show( ) : void
         + show(device: Device) : void
+        + get_logger( ) : Logger
     }
 
     class Logger {
         - file : file
-        + Logger (log_path: string)
+        + Logger (log_path: string, home: Home)
         + log(message: string)
     }
 }
@@ -49,6 +62,7 @@ namespace std {
     class vector {}
 }
 
+Home o-- Device : home
 Home o-- Logger : home
 Logger *-- Home : logger
 vector *-- Home : devices
