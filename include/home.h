@@ -1,7 +1,9 @@
 #ifndef DOMOTIC_DEVICES_HOME
 #define DOMOTIC_DEVICES_HOME
 
-namespace sistema_domotico {
+#include "logger.h"
+
+namespace domoticdevices {
     
     class Home {
         private:
