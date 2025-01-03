@@ -7,6 +7,12 @@
 
 namespace domoticdevices {
     
+    /**
+     * Home class:
+     * provides power and device management and maintains
+     * a logger instance for house event logging detaining
+     * full responsibility.
+     */
     class Home {
         private:
             Logger logger;
@@ -14,8 +20,10 @@ namespace domoticdevices {
             int current_time;
             double network_power;
         public:
+            // Constructors
             // Getters
             int get_time();
+            // ! Possible attributes integrity problems
             Logger get_logger();
             // Command interface
             void start_device(std::string device_name);
