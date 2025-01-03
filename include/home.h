@@ -15,12 +15,14 @@ namespace domoticdevices {
      */
     class Home {
         private:
-            Logger logger;
-            std::vector<Device> devices;
-            int current_time;
-            double network_power;
+            Logger logger_;
+            std::vector<Device> devices_;
+            int current_time_;
+            double network_power_;
         public:
             // Constructors
+            Home(double network_power, std::string logfile_path)
+            : network_power_{network_power}, logger_{logfile_path, *this} {}
             // Getters
             int get_time();
             // ! Possible attributes integrity problems
