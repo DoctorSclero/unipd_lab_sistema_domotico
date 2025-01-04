@@ -24,7 +24,7 @@ namespace domoticdevices {
             Home(double network_power, std::string logfile_path)
             : network_power_{network_power}, logger_{logfile_path, *this} {}
             // Getters
-            int get_time();
+            int get_time() const;
             // ! Possible attributes integrity problems
             Logger get_logger();
             // Command interface
@@ -33,10 +33,10 @@ namespace domoticdevices {
             void set_time(int time);
             void set_start(int time, std::string device_name);
             void set_stop(int time, std::string device_name);
-            void show();
-            void show(std::string device_name);
+            void show() const;
+            void show(std::string device_name) const;
             // Observer pattern
-            void subscribe(Device device);
+            void subscribe(Device& device);
     };
 
 }
