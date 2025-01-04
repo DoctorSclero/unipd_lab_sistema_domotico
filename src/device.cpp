@@ -20,7 +20,7 @@ namespace domoticdevices {
     }
 
     void Device::set_home(Home& h){
-        home = h;
+        home = &h;
     }
 
     double Device::get_power() const {
@@ -48,7 +48,7 @@ namespace domoticdevices {
     void Device::start(){
         if(!running){
             priority = priority_counter++;
-            start_time = home.get_time();
+            start_time = home->get_time();
             running = true;
         }
     }

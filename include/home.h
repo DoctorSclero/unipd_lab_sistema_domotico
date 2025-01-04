@@ -15,10 +15,10 @@ namespace domoticdevices {
      */
     class Home {
         private:
-            Logger logger_;
             std::vector<Device> devices_;
             int current_time_;
             double network_power_;
+            Logger logger_;
         public:
             // Constructors
             Home(double network_power, std::string logfile_path)

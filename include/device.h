@@ -38,7 +38,7 @@ namespace domoticdevices {
             int priority;
             int start_time;
             bool running;
-            Home home;
+            Home* home; // ? Can we use smart pointers to prevent dangling pointers
             
             Device(std::string n, double p, int pr)
             : ID{id_counter++}, running{false}, name{n}, priority{pr}, start_time{-1}, power{p} {}
