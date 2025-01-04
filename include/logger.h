@@ -10,7 +10,7 @@ namespace domoticdevices {
      */
     class Logger {
         private:
-            Home& p_home;
+            Home* p_home;
             std::ofstream p_file;
         public:
             /**
@@ -19,7 +19,7 @@ namespace domoticdevices {
              * @param home A reference to the home for time retrival
              */
             Logger(std::string file_path, Home& home)
-            : p_home{home}, p_file{file_path} {};
+            : p_home{&home}, p_file{file_path} {};
 
             /**
              * Loggs an event by writing it in the console
