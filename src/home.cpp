@@ -2,8 +2,9 @@
 #include "device.h"
 #include "cycledevice.h"
 #include "manualdevice.h"
-#include <algorithm>
 
+#include <algorithm>
+#include <sstream>
 
 namespace domoticdevices {
     // Utility functions
@@ -42,12 +43,10 @@ namespace domoticdevices {
 
     // Command interface
     void Home::start_device(const std::string device_name) {
-        auto device = find_if(
+        auto device = find(
             this->devices_.begin(), 
             this->devices_.end(),
-            [device_name] (Device* x) {
-                return x->get_name() == device_name;
-            }
+            device_name
         );
 
         if (device == this->devices_.end()) {
@@ -57,8 +56,6 @@ namespace domoticdevices {
         }
 
         (*device)->start();
-        sort_devices(this->devices_);
-        // TODO: overloading detection and resolution
     }
 
     void Home::stop_device(const std::string device_name){
@@ -76,8 +73,6 @@ namespace domoticdevices {
         }
 
         (*device)->stop();
-        sort_devices(this->devices_);
-        // TODO: overloading detection and resolution
     }
 
     void Home::set_time(const int time) {
@@ -88,8 +83,6 @@ namespace domoticdevices {
             while (device != this->devices_.end()) {
                 (*device)->update();
             }
-            sort_devices(this->devices_);
-            // TODO: overloading detection and resolution
         }
     }
     
@@ -123,7 +116,10 @@ namespace domoticdevices {
     }
 
     void Home::show() const {
-
+        std::stringstream sstream;
+        for (Device* device : this->devices_) {
+            sstream << device->to_string();
+        }
     }
 
     void Home::show(const std::string device_name) const {
@@ -150,6 +146,20 @@ namespace domoticdevices {
             ) != this->devices_.end()
         ) {
             this->devices_.push_back(&device);
+        }
+    }
+
+    void Home::update(double consumption_delta) {
+        
+        this->current_load_ += consumption_delta;
+        
+        sort_devices(this->devices_);
+
+        //! Controllare la correttezza del metodo
+        while(this->current_load_ > this->network_power_){
+            auto device = this->devices_.end();
+            stop_device((*device)->get_name());
+            device--;
         }
     }
 }
