@@ -10,23 +10,23 @@ namespace domoticdevices {
      */
     class Logger {
         private:
-            Home* p_home;
-            std::ofstream p_file;
+            const Home* home_;
+            std::ofstream file_;
         public:
             /**
              * Logger constructor
              * @param file_path The log file path
              * @param home A reference to the home for time retrival
              */
-            Logger(std::string file_path, Home& home)
-            : p_home{&home}, p_file{file_path} {};
+            Logger(const char* file_path, const Home* home)
+            : home_{home}, file_{file_path} {};
 
             /**
              * Loggs an event by writing it in the console
              * and on the specified log file.
              * @param message The message to print
              */
-            void log(std::string message);
+            void log(const std::string message);
     };
 }
 #endif

@@ -1,8 +1,86 @@
 #include <iostream>
-#include <map>
-#include "device.h"
+#include <sstream>
+#include <vector>
+#include <string>
+#include "../include/home.h"
 
-int main() {
 
-    return 0;
+std::vector<std::string> to_array_string(const std::string& string, char divisor) {
+    std::vector<std::string> string_array;
+    std::stringstream stream(string);
+    std::string token;
+
+    while(std::getline(stream, token, divisor)) {
+        string_array.push_back(token);
+    }
+    return string_array;
 }
+
+/*int string_to_int(std::string string){
+    int str = std::stoi(string);
+}*/
+
+
+
+int main(){
+    constexpr double MAX_HOME_POWER = 3.5;
+    constexpr char* LOGFILE_PATH = "#";
+    std::string command;
+    std::cout << "Inserisci il comando:";
+    std::cin >> command;
+    char divisor = ' ';
+    std::vector<std::string> tokenized_command = to_array_string(command, divisor);
+    domoticdevices::Home home(MAX_HOME_POWER, LOGFILE_PATH);
+
+    /*for(const auto& s : result) {
+        std:: cout<<s<<std::endl;
+    }*/
+    if(tokenized_command.size() >= 3 && tokenized_command.size() <= 4){
+        if(tokenized_command[0] == "set"){
+            if(tokenized_command[1] == "time"){
+                    try{
+                        int time = std::stoi(tokenized_command[2]);
+                        //chiamo set time
+                        set_time(time);
+                    } catch (std::invalid_argument ia) {}
+                }
+            try{
+                int start_time = std::stoi(tokenized_command[2]);
+                // chiami home->set_start(start_time, tokenized_command[1]);
+            } catch (std::invalid_argument ia) {
+                // If second 
+                if (tokenized_command[2] == "on"){
+                    
+                } else if (tokenized_command[2] == "off"){
+                    
+                } else {
+                    // TODO: exception management: unknown argument
+                    std::invalid_argument;
+                }
+            }
+                /*if (tokenized_command.size() == 4) {
+                    int stop_time = std::stoi(tokenized_command[3]);
+                    // chiami home->set_stap(start_time, tokenized_command[1]);
+                }*/
+        } else {
+            // TODO: too many/few arguments
+            std::out_of_range;
+        }
+    } else if(tokenized_command[0] == "rm"){
+
+    } else if(tokenized_command[0] == "show"){
+
+    } else if(tokenized_command[0] == "reset"){
+        
+    }
+    // Vedere 
+    
+    
+
+    
+
+    //if(command == "set devicename on") 
+    // set devicename on -> .start_device(devicename)
+    //set devicename off -> stop_device(devicename)
+    return 0;
+} 

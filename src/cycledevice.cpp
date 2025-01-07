@@ -3,17 +3,20 @@
 namespace domoticdevices {
     /**
     * updates the state of the device:
-    *  - turns on if time = start_time
-    *  - turns off if time = start_time + cycle_duration
+    *  - turns on if time = start_time_
+    *  - turns off if time = start_time_ + cycle_duration_
     *  - keeps current state otherwise
-    * @param time, supposed to be logically correct
-    * @return bool, true if device is on, false otherwise
+    * addds the amount of power consumed in a minute to total_power_
     */
     void CycleDevice::update(){
-        if(home.get_time() == start_time){
+        if(home_->get_time() == start_time_){
             start();
-        }else if(home.get_time() == start_time + cycle_duration){
+        }else if(home_->get_time() == start_time_ + cycle_duration_){
             stop();
+        }
+
+        if(running_){
+            total_power_ += power_ / 60;
         }
     }
 }

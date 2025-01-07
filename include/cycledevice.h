@@ -6,10 +6,10 @@
 namespace domoticdevices {
     class CycleDevice : public Device{
         private:
-            int cycle_duration;
+            int cycle_duration_;
         public:
-            CycleDevice(std::string n, double p, int pr, int cd)
-                : Device{n, p, pr}, cycle_duration{cd} {}
+            CycleDevice(const std::string name, const double power, const int priority, const int cycle_duration)
+                : Device{name, power, priority}, cycle_duration_{cycle_duration} {}
                 
             void update();
     };

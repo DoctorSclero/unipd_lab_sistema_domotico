@@ -6,12 +6,14 @@
 namespace domoticdevices {
     class ManualDevice : public Device{
         private:
-            int stop_time;
+            int stop_time_;
         public:
-            ManualDevice(std::string n, double p, int pr)
-            : Device{n, p, pr}, stop_time{-1} {}
+            ManualDevice(const std::string name, const double power, const int priority)
+            : Device{name, power, priority}, stop_time_{-1} {}
+
+            void set_stop_time(const int time);
             
-            bool update();
+            void update();
     };
 }
 
