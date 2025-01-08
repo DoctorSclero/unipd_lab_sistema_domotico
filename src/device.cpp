@@ -39,6 +39,10 @@ namespace domoticdevices {
         return priority_;
     }
 
+    bool Device::is_running() const {
+        return running_
+    }
+
     /**
     * defines the order of Devices based on their priority
     * @param other_device reference to the Device used for the comparison
@@ -68,21 +72,25 @@ namespace domoticdevices {
     }
 
     /**
-    * starts the device
-    * 
+    * starts the device if it isn't already running
     */
     void Device::start(){
         if(!running_){
             priority_ = priority_counter_++;
             start_time_ = home_->get_time();
             running_ = true;
+            home_->update(power_)
         }
     }
 
+    /**
+    * stops the device only if the device is running
+    */
     void Device::stop(){
-        if(running_ && priority_ != -1){
+        if(running_){
             priority_ = 0;
             running_ = false;
+            home_->update(-power_)
         }
     }
 

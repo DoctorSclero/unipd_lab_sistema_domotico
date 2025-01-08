@@ -54,6 +54,7 @@ namespace domoticdevices {
             int get_id() const;
             double get_power() const;
             int get_priority() const;
+            bool is_running() const;
             void set_start_time(const int time);
             void set_home(Home& h);
             void start();

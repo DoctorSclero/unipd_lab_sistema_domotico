@@ -42,6 +42,7 @@ namespace domoticdevices {
     }
 
     // Command interface
+
     void Home::start_device(const std::string device_name) {
         auto device = find(
             this->devices_.begin(), 
@@ -51,7 +52,7 @@ namespace domoticdevices {
 
         if (device == this->devices_.end()) {
             // Device not found
-            // TODO: launch an exception
+            throw std::invalid_argument("cannot find device " + device_name);
             return;
         }
 
@@ -68,7 +69,7 @@ namespace domoticdevices {
 
         if (device == this->devices_.end()) {
             // Device not found
-            // TODO: Launch an exception
+            throw std::invalid_argument("cannot find device " + device_name);
             return;
         }
 
@@ -94,9 +95,9 @@ namespace domoticdevices {
         );
 
         if (device == this->devices_.end()) {
-            // TODO: launch exception
+            throw std::invalid_argument("cannot find device " + device_name);
         }
-
+        
         (*device)->set_start_time(time);
     }
 
@@ -108,20 +109,26 @@ namespace domoticdevices {
         );
 
         if (device == this->devices_.end()) {
-            // TODO: launch exception
+            throw std::invalid_argument("cannot find device " + device_name);
         }
 
         ManualDevice* md = dynamic_cast<ManualDevice*>(*device);
-        md->set_stop_time(time);
+        if (md != nullptr) md->set_stop_time(time);
+        else {
+            // TODO: launch exception not a manual device
+        }
     }
 
+    // ? Check for correct functionality
     void Home::show() const {
         std::stringstream sstream;
         for (Device* device : this->devices_) {
             sstream << device->to_string();
         }
+        this->get_logger()->log(sstream.str());
     }
 
+    // ? Check for correct functionality
     void Home::show(const std::string device_name) const {
         auto device = find(
             this->devices_.begin(),
@@ -130,7 +137,7 @@ namespace domoticdevices {
         );
         
         if (device == this->devices_.end()) {
-            // TODO: launch exception
+            throw std::invalid_argument("cannot find device " + device_name);
         }
 
         this->get_logger()->log((*device)->to_string());
@@ -143,7 +150,7 @@ namespace domoticdevices {
                 this->devices_.begin(), 
                 this->devices_.end(),
                 device
-            ) != this->devices_.end()
+            ) == this->devices_.end()
         ) {
             this->devices_.push_back(&device);
         }
@@ -151,15 +158,18 @@ namespace domoticdevices {
 
     void Home::update(double consumption_delta) {
         
+        // Updating the total power consumed
         this->current_load_ += consumption_delta;
         
-        sort_devices(this->devices_);
-
         //! Controllare la correttezza del metodo
+        // Shutting down devices if house power network is overloaded
         while(this->current_load_ > this->network_power_){
             auto device = this->devices_.end();
             stop_device((*device)->get_name());
             device--;
         }
+
+        // Sorting the devices by priority
+        sort_devices(this->devices_);
     }
 }
