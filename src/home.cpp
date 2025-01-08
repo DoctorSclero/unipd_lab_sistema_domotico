@@ -38,7 +38,7 @@ namespace domoticdevices {
         return this->current_time_;
     }
 
-    Logger* Home::get_logger() const {
+    const Logger& Home::get_logger() const {
         return this->logger_;
     }
 
@@ -150,7 +150,7 @@ namespace domoticdevices {
         for (Device* device : this->devices_) {
             sstream << device->to_string();
         }
-        this->get_logger()->log(sstream.str());
+        this->get_logger().log(sstream.str());
     }
 
     // ? Check for correct functionality
@@ -165,12 +165,13 @@ namespace domoticdevices {
             throw std::invalid_argument("cannot find device " + device_name);
         }
 
-        this->get_logger()->log((*device)->to_string());
+        this->get_logger().log((*device)->to_string());
     }
     
     // Observer pattern
     void Home::subscribe(Device& device) {
         if (
+            // ! All find member function are comparing pointers with actual objects
             find(
                 this->devices_.begin(), 
                 this->devices_.end(),

@@ -2,9 +2,13 @@
 #define DOMOTIC_DEVICES_LOGGER
 
 #include <fstream>
-#include "home.h";
+#include "home.h"
 
 namespace domoticdevices {
+    class Home;
+    class Device;
+    class CycleDevice;
+    class ManualDevice;
     /**
      * Manages the logging of events of a house
      */
@@ -31,7 +35,7 @@ namespace domoticdevices {
              * and on the specified log file.
              * @param message The message to print
              */
-            void log(const std::string message);
+            void log(const std::string message) const;
     };
 }
 #endif

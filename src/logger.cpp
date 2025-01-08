@@ -18,7 +18,7 @@ namespace domoticdevices {
         }
     }
 
-    void Logger::log(const std::string message) {
+    void Logger::log(const std::string message) const {
         std::stringstream ss;
         int current_time = this->home_->get_time();
         int current_hour = current_time / 60;

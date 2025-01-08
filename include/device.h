@@ -5,6 +5,10 @@
 #include "home.h"
 
 namespace domoticdevices {
+    class Home;
+    class Logger;
+    class CycleDevice;
+    class ManualDevice;
     /**
     * base abstract class
     * represents the common caracteristics of a Device

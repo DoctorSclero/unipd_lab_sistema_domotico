@@ -7,6 +7,11 @@
 #include "logger.h"
 
 namespace domoticdevices {
+
+    class Device;
+    class Logger;
+    class CycleDevice;
+    class ManualDevice;
     
     /**
      * Home class:
@@ -20,14 +25,14 @@ namespace domoticdevices {
             int current_time_;
             double network_power_;
             double current_load_;
-            Logger* logger_;
+            Logger logger_;
         public:
             /***************************************************
              * Constructor
              ***************************************************/
 
             Home(const double network_power, const char* logfile_path)
-            : network_power_{network_power}, logger_{&Logger{logfile_path, this}} {}
+            : network_power_{network_power}, logger_{logfile_path, this} {}
 
             /***************************************************
              * Getters
@@ -44,7 +49,7 @@ namespace domoticdevices {
              * logging in the file and console.
              * @returns A reference to the logger
              */
-            Logger* get_logger() const;
+            const Logger& get_logger() const;
 
             /****************************************************
              * Command interface

@@ -4,6 +4,10 @@
 #include "device.h"
 
 namespace domoticdevices {
+    class Device;
+    class Logger;
+    class CycleDevice;
+    class Home;
     class ManualDevice : public Device{
         private:
             int stop_time_;
