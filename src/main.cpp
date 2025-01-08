@@ -36,6 +36,7 @@ int main(){
         std:: cout<<s<<std::endl;
     }*/
 
+
     if(tokenized_command[0] == "set"){
         if(tokenized_command.size() >= 3 && tokenized_command.size() <= 4){
             if(tokenized_command[1] == "time"){
@@ -76,12 +77,15 @@ int main(){
     }
 
     //controllo i comandi show <3 i<3u
-    if(tokenized_command.size() <= 2){
     if(tokenized_command[0] == "show"){
-        //mostro l'elenco dei devices
+        if(tokenized_command.size() == 1){
+            //mostro l'elenco dei devices
+
+        } else if(tokenized_command.size() == 1){
+            //mostro le caratteristiche di un device
+        }
     }
-    if(tokenized_command[1] ==)
-    }
+    
 
 
 

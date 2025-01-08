@@ -17,9 +17,14 @@ namespace domoticdevices {
              * Logger constructor
              * @param file_path The log file path
              * @param home A reference to the home for time retrival
+             * @thorws `runtime_error` if the log file cannot be opened
              */
-            Logger(const char* file_path, const Home* home)
-            : home_{home}, file_{file_path} {};
+            Logger(const char* file_path, const Home* home);
+
+            /**
+             * Logger destructor, closes file stream
+             */
+            ~Logger();
 
             /**
              * Loggs an event by writing it in the console

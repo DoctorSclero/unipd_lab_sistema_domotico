@@ -10,6 +10,7 @@ namespace domoticdevices {
     // Utility functions
 
     /**
+     * ? A bit too long maybe ?
      * Storts the devices vector by prioirity
      * being the complexity of insertion sort = O(n + k)
      * where n is the dimension of the array and k the number 
@@ -59,7 +60,7 @@ namespace domoticdevices {
         (*device)->start();
     }
 
-    void Home::stop_device(const std::string device_name){
+    void Home::stop_device(const std::string device_name) {
         // Searching for the device with the matching name
         auto device = find(
             this->devices_.begin(), 
@@ -70,30 +71,49 @@ namespace domoticdevices {
         if (device == this->devices_.end()) {
             // Device not found
             throw std::invalid_argument("cannot find device " + device_name);
-            return;
         }
 
         (*device)->stop();
     }
 
+    /**
+     * Moves on the internal clock of the house,
+     * informing the device of the passed time.
+     * Device recieves updates from current_time_ to
+     * time-1 included.
+     */
     void Home::set_time(const int time) {
-        // Updating all the subscribed devices
-        // minute by minute
-        while (this->current_time_++ < time) {
+        // Throwing an error if the time is not in the correct range
+        if (time <= this->get_time() || time >= 1440) {
+            std::stringstream ss;
+            ss << "Time must be between " << time/60 << ":" << time%60 << " and 23:59";
+            throw std::invalid_argument(ss.str());
+        }
+
+        // Updating all the subscribed devices minute by minute
+        while (this->current_time_ < time) {
             auto device = this->devices_.begin();
             while (device != this->devices_.end()) {
                 (*device)->update();
             }
+            this->current_time_++;
         }
     }
     
     void Home::set_start(const int time, const std::string device_name) {
+        // Throwing an error if the time is not in the correct range
+        // ? Should it be between current time and 1440?
+        if (time < 0 || time >= 1440) {
+            throw std::invalid_argument("Start time must be between 00:00 and 23:59");
+        }
+
         auto device = find(
             this->devices_.begin(),
             this->devices_.end(),
             device_name
         );
 
+        // If device isn't found launch 
         if (device == this->devices_.end()) {
             throw std::invalid_argument("cannot find device " + device_name);
         }
@@ -102,6 +122,11 @@ namespace domoticdevices {
     }
 
     void Home::set_stop(const int time, const std::string device_name) {
+        // Throwing an error if the time is not in the correct range
+        if (time < 0 || time >= 1440) {
+            throw std::invalid_argument("Start time must be between 00:00 and 23:59");
+        }
+
         auto device = find(
             this->devices_.begin(),
             this->devices_.end(),
@@ -163,7 +188,7 @@ namespace domoticdevices {
         
         //! Controllare la correttezza del metodo
         // Shutting down devices if house power network is overloaded
-        while(this->current_load_ > this->network_power_){
+        while(this->current_load_ > this->network_power_) {
             auto device = this->devices_.end();
             stop_device((*device)->get_name());
             device--;

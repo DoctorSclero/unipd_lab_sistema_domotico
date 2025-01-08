@@ -12,15 +12,14 @@ namespace domoticdevices {
     */
     int Device::priority_counter_ = 1;
 
-    /**
-    * sets the start time of the Device
-    * @param time supposed to be logically correct
-    */
     void Device::set_start_time(const int start_time){
+        if (start_time < 0 || start_time > 1440) {
+            throw std::invalid_argument("Start time must be between 0 and 1440");
+        }
         start_time_ = start_time;
     }
 
-    void Device::set_home(Home& h){
+    void Device::subscribe(Home& h){
         home_ = &h;
     }
 
@@ -40,7 +39,7 @@ namespace domoticdevices {
     }
 
     bool Device::is_running() const {
-        return running_
+        return running_;
     }
 
     /**
@@ -52,6 +51,8 @@ namespace domoticdevices {
     bool Device::operator<(const Device& other_device) const { 
         return (this->priority_ < other_device.priority_);
     }
+    
+    // ? Should we do an operator> for consistency ?
 
     /**
     * checks equality between two devices based on their name
@@ -79,7 +80,7 @@ namespace domoticdevices {
             priority_ = priority_counter_++;
             start_time_ = home_->get_time();
             running_ = true;
-            home_->update(power_)
+            home_->update(power_);
         }
     }
 
@@ -90,7 +91,7 @@ namespace domoticdevices {
         if(running_){
             priority_ = 0;
             running_ = false;
-            home_->update(-power_)
+            home_->update(-power_);
         }
     }
 

@@ -106,6 +106,7 @@ namespace domoticdevices {
             /**
              * Connects a device to the house network. Subscribed
              * device recieve a notification on every time update
+             * @param device The device to add to the house
              */
             void subscribe(Device& device);
 
