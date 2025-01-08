@@ -181,12 +181,15 @@ namespace domoticdevices {
         }
     }
 
+    /**
+     * ! Il metodo ha ripercussioni ricorsive stop_device
+     * ! chiama Device::stop() che chiama Home::update()
+     */
     void Home::update(double consumption_delta) {
         
         // Updating the total power consumed
         this->current_load_ += consumption_delta;
         
-        //! Controllare la correttezza del metodo
         // Shutting down devices if house power network is overloaded
         while(this->current_load_ > this->network_power_) {
             auto device = this->devices_.end();
