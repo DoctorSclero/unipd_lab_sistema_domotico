@@ -187,17 +187,17 @@ namespace domoticdevices {
      */
     void Home::update(double consumption_delta) {
         
+        // Sorting the devices by priority
+        sort_devices(this->devices_);
+
         // Updating the total power consumed
         this->current_load_ += consumption_delta;
         
         // Shutting down devices if house power network is overloaded
-        while(this->current_load_ > this->network_power_) {
+        if (this->current_load_ > this->network_power_) {
             auto device = this->devices_.end();
             stop_device((*device)->get_name());
-            device--;
         }
 
-        // Sorting the devices by priority
-        sort_devices(this->devices_);
     }
 }
