@@ -1,11 +1,9 @@
 #include "home.h"
-#include "logger.h"
-#include "device.h"
-#include "cycledevice.h"
-#include "manualdevice.h"
 
 #include <algorithm>
 #include <sstream>
+
+#include "manualdevice.h"
 
 namespace domoticdevices {
     // Utility functions
@@ -38,7 +36,7 @@ namespace domoticdevices {
         return this->current_time_;
     }
 
-    const Logger& Home::get_logger() const {
+    const Home::Logger& Home::get_logger() const {
         return this->logger_;
     }
 

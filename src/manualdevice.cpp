@@ -1,4 +1,5 @@
-#include "../include/manualdevice.h"
+#include "manualdevice.h"
+#include "home.h"
 
 namespace domoticdevices{
     /**

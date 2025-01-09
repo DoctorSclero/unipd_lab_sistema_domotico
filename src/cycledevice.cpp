@@ -1,4 +1,5 @@
-#include "../include/cycledevice.h"
+#include "cycledevice.h"
+#include "home.h"
 
 namespace domoticdevices {
     /**

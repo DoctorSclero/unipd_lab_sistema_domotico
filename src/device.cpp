@@ -1,4 +1,5 @@
 #include "device.h"
+
 #include <sstream>
 
 namespace domoticdevices {

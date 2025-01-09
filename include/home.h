@@ -1,30 +1,63 @@
-#ifndef DOMOTIC_DEVICES_HOME
-#define DOMOTIC_DEVICES_HOME
+#ifndef DOMOTIC_DEVICES_HOME_H
+#define DOMOTIC_DEVICES_HOME_H
+
+#include "device.h"
 
 #include <vector>
 #include <memory>
-#include "logger.h"
-#include "device.h"
+#include <fstream>
 
 namespace domoticdevices {
 
-    class Logger;
     class Device;
     
     /**
-     * Home class:
-     * provides power and device management and maintains
+     * Provides power and device management and maintains
      * a logger instance for house event logging detaining
      * full responsibility.
      */
     class Home {
+
         private:
+
+            /**
+             * Helper class to manage the logging of house
+             * events
+             */
+            class Logger {
+                private:
+                    const Home* home_;
+                    std::ofstream file_;
+                public:
+                    /**
+                     * Logger constructor
+                     * @param file_path The log file path
+                     * @param home A reference to the home for time retrival
+                     * @thorws `runtime_error` if the log file cannot be opened
+                     */
+                    Logger(const char* file_path, const Home* home);
+
+                    /**
+                     * Logger destructor, closes file stream
+                     */
+                    ~Logger();
+
+                    /**
+                     * Loggs an event by writing it in the console
+                     * and on the specified log file.
+                     * @param message The message to print
+                     */
+                    void log(const std::string message) const;
+            };
+
             std::vector<Device*> devices_;
             int current_time_;
             double network_power_;
             double current_load_;
             Logger logger_;
+
         public:
+
             /***************************************************
              * Constructor
              ***************************************************/
