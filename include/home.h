@@ -3,15 +3,13 @@
 
 #include <vector>
 #include <memory>
-#include "device.h"
 #include "logger.h"
+#include "device.h"
 
 namespace domoticdevices {
 
-    class Device;
     class Logger;
-    class CycleDevice;
-    class ManualDevice;
+    class Device;
     
     /**
      * Home class:

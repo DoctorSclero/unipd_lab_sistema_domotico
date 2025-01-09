@@ -6,9 +6,6 @@
 
 namespace domoticdevices {
     class Home;
-    class Device;
-    class CycleDevice;
-    class ManualDevice;
     /**
      * Manages the logging of events of a house
      */

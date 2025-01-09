@@ -1,4 +1,4 @@
-#include "../include/device.h"
+#include "device.h"
 #include <sstream>
 
 namespace domoticdevices {

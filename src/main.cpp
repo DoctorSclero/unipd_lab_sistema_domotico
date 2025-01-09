@@ -2,7 +2,7 @@
 #include <sstream>
 #include <vector>
 #include <string>
-#include "../include/home.h"
+#include "home.h"
 
 
 std::vector<std::string> to_array_string(const std::string& string, char divisor) {
@@ -36,97 +36,69 @@ int main(){
         std:: cout<<s<<std::endl;
     }*/
 
-
-    if(tokenized_command[0] == "set"){
-        if(tokenized_command.size() >= 3 && tokenized_command.size() <= 4){
-            if(tokenized_command[1] == "time"){
-                try{
-                    int time = std::stoi(tokenized_command[2]);
-                    //chiamo set time
-                    home.set_time(time);
-                } catch (std::invalid_argument ia) {}
-            }
-            if(tokenized_command.size() == 4){
-                try{
-                    int start_time = std::stoi(tokenized_command[2]);
-                    int stop_time = std::stoi(tokenized_command[3]);
-                    home.set_start(start_time,);
-                    home.set_stop(stop_time,);
-                    // chiami home->set_start(start_time, tokenized_command[1]);
-                } catch (std::invalid_argument ia){}
-            }
-            if(tokenized_command.size() == 3){
-                if(tokenized_command[2] == "on"){
-                    home.start_device();
-                } else if(tokenized_command[2] == "off"){
-                    home.stop_device();
+    while (tokenized_command[0] == "set" || tokenized_command[0] == "reset" || tokenized_command[0] == "show") {
+        if (tokenized_command[0] == "set") {
+            if (tokenized_command.size() >= 3 && tokenized_command.size() <= 4) {
+                if (tokenized_command[1] == "time") {
+                    try {
+                        int time = std::stoi(tokenized_command[2]);
+                        //chiamo set time
+                        home.set_time(time);
+                    }
+                    catch (std::invalid_argument ia) {}
+                }
+                if (tokenized_command.size() == 4) {
+                    try {
+                        int start_time = std::stoi(tokenized_command[2]);
+                        int stop_time = std::stoi(tokenized_command[3]);
+                        home.set_start(start_time, tokenized_command[1]);
+                        home.set_stop(stop_time, tokenized_command[1]);
+                        // chiami home->set_start(start_time, tokenized_command[1]);
+                        //MA DEVO CONTROLLARE CHE TOKENIZED_COMMAND[1] SIA UNA STRINGA 
+                        //CHE CORRISPONDA AL NOME DI UNO DEI DISPOSITIVI!
+                    }
+                    catch (std::invalid_argument ia) {}
+                }
+                if (tokenized_command.size() == 3) {
+                    if (tokenized_command[2] == "on") {
+                        home.start_device(device_name);
+                    }
+                    else if (tokenized_command[2] == "off") {
+                        home.stop_device(device_name);
+                    }
                 }
             }
         }
-    }
 
-    //controllo i comandi reset
-    if(tokenized_command[0] == "reset"){
-        if(tokenized_command[1] == "time"){
-            home.set_time(0);
-        } else if(tokenized_command[1] == "timers"){
-            home.set_start(0,);
-        } else if(tokenized_command[1] == "all"){
-
-        }
-    }
-
-    //controllo i comandi show <3 i<3u
-    if(tokenized_command[0] == "show"){
-        if(tokenized_command.size() == 1){
-            //mostro l'elenco dei devices
-
-        } else if(tokenized_command.size() == 1){
-            //mostro le caratteristiche di un device
-        }
-    }
-    
-
-
-
-
-            /* try{
-                int start_time = std::stoi(tokenized_command[2]);
-                // chiami home->set_start(start_time, tokenized_command[1]);
-            } catch (std::invalid_argument ia) {
-                // If second 
-                if (tokenized_command[2] == "on"){
-                    
-                } else if (tokenized_command[2] == "off"){
-                    
-                } else {
-                    // TODO: exception management: unknown argument
-                    std::invalid_argument;
-                }
+        //controllo i comandi reset
+        if (tokenized_command[0] == "reset") {
+            if (tokenized_command[1] == "time") {
+                home.set_time(0);
             }
-                /*if (tokenized_command.size() == 4) {
-                    int stop_time = std::stoi(tokenized_command[3]);
-                    // chiami home->set_stap(start_time, tokenized_command[1]);
-                }*/
-        } else {
-            // TODO: too many/few arguments
-            std::out_of_range;
+            else if (tokenized_command[1] == "timers") {
+                home.set_start(0,device_name);
+            }
+            else if (tokenized_command[1] == "all") {
+                home.reset_all();
+            }
         }
-    } else if(tokenized_command[0] == "rm"){
 
-    } else if(tokenized_command[0] == "show"){
-
-    } else if(tokenized_command[0] == "reset"){
-        
+        //controllo i comandi show <3 i<3u
+        if (tokenized_command[0] == "show") {
+            if (tokenized_command.size() == 2) {
+                if (tokenized_command[1] == "") {
+                    //mostro le caratteristiche del device
+                }
+            } else if (tokenized_command.size() == 1) {
+                //mostro l'elenco dei devices
+            }
+        }
     }
-    // Vedere 
+    //eccezione per comando non valido, o inesistente
+    // TODO: too many/few arguments
+    std::out_of_range;
     
     
-
     
-
-    //if(command == "set devicename on") 
-    // set devicename on -> .start_device(devicename)
-    //set devicename off -> stop_device(devicename)
     return 0;
 } 

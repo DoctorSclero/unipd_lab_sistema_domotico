@@ -9,10 +9,12 @@ add_library(sistema_domotico_logic STATIC
     include/cycledevice.h
     include/manualdevice.h
     include/device.h
+    include/logger.h
     src/home.cpp
     src/cycledevice.cpp
     src/manualdevice.cpp
     src/device.cpp
+    src/logger.cpp
 )
 
 add_executable(sistema_domotico

@@ -1,4 +1,5 @@
 #include "home.h"
+#include "logger.h"
 #include "device.h"
 #include "cycledevice.h"
 #include "manualdevice.h"
@@ -10,7 +11,6 @@ namespace domoticdevices {
     // Utility functions
 
     /**
-     * ? A bit too long maybe ?
      * Storts the devices vector by prioirity
      * being the complexity of insertion sort = O(n + k)
      * where n is the dimension of the array and k the number 
@@ -45,10 +45,12 @@ namespace domoticdevices {
     // Command interface
 
     void Home::start_device(const std::string device_name) {
-        auto device = find(
+        auto device = find_if(
             this->devices_.begin(), 
             this->devices_.end(),
-            device_name
+            [device_name] (Device* d) {
+                return *d == device_name;
+            }
         );
 
         if (device == this->devices_.end()) {
@@ -62,10 +64,12 @@ namespace domoticdevices {
 
     void Home::stop_device(const std::string device_name) {
         // Searching for the device with the matching name
-        auto device = find(
+        auto device = find_if(
             this->devices_.begin(), 
             this->devices_.end(),
-            device_name
+            [device_name] (Device* d) {
+                return *d == device_name;
+            }
         );
 
         if (device == this->devices_.end()) {
@@ -107,10 +111,12 @@ namespace domoticdevices {
             throw std::invalid_argument("Start time must be between 00:00 and 23:59");
         }
 
-        auto device = find(
-            this->devices_.begin(),
+        auto device = find_if(
+            this->devices_.begin(), 
             this->devices_.end(),
-            device_name
+            [device_name] (Device* d) {
+                return *d == device_name;
+            }
         );
 
         // If device isn't found launch 
@@ -127,12 +133,13 @@ namespace domoticdevices {
             throw std::invalid_argument("Start time must be between 00:00 and 23:59");
         }
 
-        auto device = find(
-            this->devices_.begin(),
+        auto device = find_if(
+            this->devices_.begin(), 
             this->devices_.end(),
-            device_name
+            [device_name] (Device* d) {
+                return *d == device_name;
+            }
         );
-
         if (device == this->devices_.end()) {
             throw std::invalid_argument("cannot find device " + device_name);
         }
@@ -155,12 +162,15 @@ namespace domoticdevices {
 
     // ? Check for correct functionality
     void Home::show(const std::string device_name) const {
-        auto device = find(
-            this->devices_.begin(),
-            this->devices_.end(),
-            device_name
-        );
         
+        auto device = find_if(
+            this->devices_.begin(), 
+            this->devices_.end(),
+            [device_name] (Device* d) {
+                return *d == device_name;
+            }
+        );
+
         if (device == this->devices_.end()) {
             throw std::invalid_argument("cannot find device " + device_name);
         }
@@ -172,13 +182,17 @@ namespace domoticdevices {
     void Home::subscribe(Device& device) {
         if (
             // ! All find member function are comparing pointers with actual objects
-            find(
+            find_if(
                 this->devices_.begin(), 
                 this->devices_.end(),
-                device
-            ) == this->devices_.end()
+                [&device] (Device* d) {
+                    return *d == device;
+                }
+            ) != this->devices_.end()
         ) {
             this->devices_.push_back(&device);
+            device.subscribe(*this);
+            // TODO: subscribe house to device
         }
     }
 
@@ -186,7 +200,7 @@ namespace domoticdevices {
      * ! Il metodo ha ripercussioni ricorsive stop_device
      * ! chiama Device::stop() che chiama Home::update()
      */
-    void Home::update(double consumption_delta) {
+    void Home::update(const double consumption_delta) {
         
         // Sorting the devices by priority
         sort_devices(this->devices_);

@@ -5,9 +5,6 @@
 
 namespace domoticdevices {
     class Home;
-    class Device;
-    class Logger;
-    class ManualDevice;
     class CycleDevice : public Device{
         private:
             int cycle_duration_;

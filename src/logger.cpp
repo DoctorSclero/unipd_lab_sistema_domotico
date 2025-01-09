@@ -1,4 +1,5 @@
 #include "logger.h"
+#include "home.h"
 
 #include <iostream>
 #include <sstream>
@@ -10,6 +11,7 @@ namespace domoticdevices {
         if (!this->file_.is_open()) {
             throw std::runtime_error("Cannot open log file");
         }
+        
     };
 
     Logger::~Logger() {
@@ -20,14 +22,15 @@ namespace domoticdevices {
 
     void Logger::log(const std::string message) const {
         std::stringstream ss;
+        
         int current_time = this->home_->get_time();
         int current_hour = current_time / 60;
         int current_min = current_time % 60;
         
         ss << "[" << current_hour << ":" << current_min << "] ";
         ss << message;
-
+        
         std::cout << ss.str();
-        this->file_ << ss.str();
+        //this->file_ << ss.str();
     }
 }
