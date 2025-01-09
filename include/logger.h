@@ -1,5 +1,5 @@
-#ifndef DOMOTIC_DEVICES_LOGGER
-#define DOMOTIC_DEVICES_LOGGER
+#ifndef DOMOTIC_DEVICES_LOGGER_H
+#define DOMOTIC_DEVICES_LOGGER_H
 
 #include <fstream>
 #include "home.h"
