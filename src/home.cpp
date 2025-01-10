@@ -177,6 +177,40 @@ namespace domoticdevices {
         this->get_logger().log((*device)->to_string());
     }
     
+    void Home::reset_time() {
+        // Stopping all devices
+        for (Device* device : this->devices_) {
+            device->stop();
+        }
+
+        // Resetting the time of the house
+        this->current_time_ = 0;
+    }
+
+    void Home::reset_timer(std::string device_name) {
+        auto device = find_if(
+            this->devices_.begin(),
+            this->devices_.end(),
+            [device_name] (Device* device) {
+                return *device == device_name;
+            }
+        );
+
+        (*device)->reset();
+    }
+
+    void Home::reset_timers() {
+        for (Device* device : this->devices_) {
+            device->reset();
+        }
+    }
+
+    void Home::reset_all() {
+        // Resetting time and removing timers
+        this->reset_time();
+        this->reset_timers();
+    }
+
     // Observer pattern
     void Home::subscribe(Device& device) {
         if (

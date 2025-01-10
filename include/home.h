@@ -5,6 +5,7 @@
 
 #include <vector>
 #include <memory>
+#include <string>
 #include <fstream>
 
 namespace domoticdevices {
@@ -134,6 +135,32 @@ namespace domoticdevices {
              * @throws `invalid_argument` if device is not present
              */
             void show(const std::string device_name);
+
+            /**
+             * Resets the house time and restores device status.
+             * Time is brought back to 00:00 and all devices are
+             * turned off. Timers are kept.
+             */
+            void reset_time();
+
+            /**
+             * Removes the timer of a device given it's device_name
+             * @param device_name The name of the device to reset
+             */
+            void reset_timer(std::string device_name);
+
+            /** 
+             * Removes the timer of all devices
+             */
+            void reset_timers();
+
+
+            /**
+             * The system is restarted, timers are reset,
+             * devices are turned off and 
+             */
+            void reset_all();
+
 
             /***************************************
              * Observer methods
