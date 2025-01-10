@@ -37,7 +37,7 @@ namespace domoticdevices {
         return this->current_time_;
     }
 
-    const Home::Logger& Home::get_logger() const {
+    Home::Logger& Home::get_logger() {
         return this->logger_;
     }
 
@@ -151,7 +151,7 @@ namespace domoticdevices {
     }
 
     // ? Check for correct functionality
-    void Home::show() const {
+    void Home::show() {
         std::stringstream sstream;
         for (Device* device : this->devices_) {
             sstream << device->to_string();
@@ -160,7 +160,7 @@ namespace domoticdevices {
     }
 
     // ? Check for correct functionality
-    void Home::show(const std::string device_name) const {
+    void Home::show(const std::string device_name) {
         
         auto device = find_if(
             this->devices_.begin(), 
@@ -220,7 +220,7 @@ namespace domoticdevices {
      ******************************************************/
 
     Home::Logger::Logger(const char* file_path, const Home* home)
-    : home_{home}, file_{file_path} {
+    : home_{home}, file_{file_path, std::ios_base::app} {
         if (!this->file_.is_open()) {
             throw std::runtime_error("Cannot open log file");
         }
@@ -233,7 +233,7 @@ namespace domoticdevices {
         }
     }
 
-    void Home::Logger::log(const std::string message) const {
+    void Home::Logger::log(const std::string message) {
         std::stringstream ss;
         
         // Time formatting [minutes since 00:00] -> hh:mm
@@ -245,6 +245,6 @@ namespace domoticdevices {
         ss << message;
         
         std::cout << ss.str();
-        //this->file_ << ss.str();
+        this->file_ << ss.str();
     }
 }

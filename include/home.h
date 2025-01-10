@@ -47,7 +47,7 @@ namespace domoticdevices {
                      * and on the specified log file.
                      * @param message The message to print
                      */
-                    void log(const std::string message) const;
+                    void log(const std::string message);
             };
 
             std::vector<Device*> devices_;
@@ -80,7 +80,7 @@ namespace domoticdevices {
              * logging in the file and console.
              * @returns A reference to the logger
              */
-            const Logger& get_logger() const;
+            Logger& get_logger(); // ? Removed const because prevents file logging
 
             /****************************************************
              * Command interface
@@ -126,14 +126,14 @@ namespace domoticdevices {
             /**
              * Logs the power consumtion of all the devices
              */
-            void show() const;
+            void show(); // ? removed const because prevents file logging
 
             /**
              * Logs the power consumption of the specified device
              * @param device_name The name of the device
              * @throws `invalid_argument` if device is not present
              */
-            void show(const std::string device_name) const;
+            void show(const std::string device_name);
 
             /***************************************
              * Observer methods
