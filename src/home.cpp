@@ -103,13 +103,8 @@ namespace domoticdevices {
         }
     }
     
-    void Home::set_start(const int time, const std::string device_name) {
-        // Throwing an error if the time is not in the correct range
-        // ? Should it be between current time and 1440?
-        if (time < 0 || time >= 1440) {
-            throw std::invalid_argument("Start time must be between 00:00 and 23:59");
-        }
-
+    void Home::set_start_timer(const int time, const std::string device_name) {
+        // Finding the device
         auto device = find_if(
             this->devices_.begin(), 
             this->devices_.end(),
@@ -118,20 +113,16 @@ namespace domoticdevices {
             }
         );
 
-        // If device isn't found launch 
+        // If device isn't found throw exception
         if (device == this->devices_.end()) {
-            throw std::invalid_argument("cannot find device " + device_name);
+            throw std::invalid_argument("Cannot find device " + device_name);
         }
         
-        (*device)->set_start_time(time);
+        (*device)->set_start_timer(time);
     }
 
-    void Home::set_stop(const int time, const std::string device_name) {
-        // Throwing an error if the time is not in the correct range
-        if (time < 0 || time >= 1440) {
-            throw std::invalid_argument("Start time must be between 00:00 and 23:59");
-        }
-
+    void Home::set_stop_timer(const int time, const std::string device_name) {
+        // Finding the device
         auto device = find_if(
             this->devices_.begin(), 
             this->devices_.end(),
@@ -139,12 +130,14 @@ namespace domoticdevices {
                 return *d == device_name;
             }
         );
+
+        // If device isn't found throw exception
         if (device == this->devices_.end()) {
             throw std::invalid_argument("cannot find device " + device_name);
         }
 
         ManualDevice* md = dynamic_cast<ManualDevice*>(*device);
-        if (md != nullptr) md->set_stop_time(time);
+        if (md != nullptr) md->set_stop_timer(time);
         else {
             // TODO: launch exception not a manual device
         }
@@ -180,7 +173,7 @@ namespace domoticdevices {
     void Home::reset_time() {
         // Stopping all devices
         for (Device* device : this->devices_) {
-            device->stop();
+            device->reset();
         }
 
         // Resetting the time of the house
@@ -196,12 +189,12 @@ namespace domoticdevices {
             }
         );
 
-        (*device)->reset();
+        (*device)->remove_timers();
     }
 
     void Home::reset_timers() {
         for (Device* device : this->devices_) {
-            device->reset();
+            device->remove_timers();
         }
     }
 

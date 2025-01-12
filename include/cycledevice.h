@@ -13,6 +13,10 @@ namespace domoticdevices {
                 : Device{name, power, priority}, cycle_duration_{cycle_duration} {}
                 
             void update();
+
+            void remove_timers();
+            
+            void reset();
     };
 }
 

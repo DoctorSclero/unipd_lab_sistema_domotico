@@ -81,7 +81,7 @@ namespace domoticdevices {
              * logging in the file and console.
              * @returns A reference to the logger
              */
-            Logger& get_logger(); // ? Removed const because prevents file logging
+            Logger& get_logger();
 
             /****************************************************
              * Command interface
@@ -114,7 +114,7 @@ namespace domoticdevices {
              * @param device_name The name of the device to set the start timer to
              * @throws `invalid_argument` if device is not present
              */
-            void set_start(const int time, const std::string device_name);
+            void set_start_timer(const int time, const std::string device_name);
 
             /**
              * Sets the stop timer for the specified device identified
@@ -122,7 +122,7 @@ namespace domoticdevices {
              * @param device_name The name of the device to set the stop timer to
              * @throws `invalid_argument` if device is not present
              */
-            void set_stop(const int time, const std::string device_name);
+            void set_stop_timer(const int time, const std::string device_name);
 
             /**
              * Logs the power consumtion of all the devices

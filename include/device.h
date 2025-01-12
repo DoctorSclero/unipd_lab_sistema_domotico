@@ -38,12 +38,17 @@ namespace domoticdevices {
             */
             int priority_;
             int start_time_;
+            int start_timer_;
             bool running_;
             double total_power_;
-            Home* home_; // ? Can we use smart pointers to prevent dangling pointers
+            Home* home_;
             
+            /**
+             * @param name The name of the device
+             * @param power The power of the device
+             */
             Device(const std::string name, const double power, const int priority)
-            : id_{id_counter_++}, running_{false}, name_{name}, priority_{priority}, start_time_{-1}, power_{power} {}
+            : id_{id_counter_++}, running_{false}, name_{name}, priority_{priority}, start_time_{-1}, start_timer_{-1}, power_{power} {}
 
         public:
             /**
@@ -107,7 +112,7 @@ namespace domoticdevices {
              * Alters the device starting time
              * @param time The new starting time
              */
-            void set_start_time(const int time);
+            void set_start_timer(const int start_timer);
 
             /**
              * House observer, subscribes an house
@@ -134,11 +139,22 @@ namespace domoticdevices {
             std::string to_string() const;
 
             /**
+            * 
+             */
+            void reset();
+
+            /**
              * Used by the home for notifying time updates.
              * Let devices handle starting up and stopping
              * on their own.
              */
             virtual void update() = 0;
+
+            /**
+            * 
+             */
+            virtual void remove_timers() = 0;
+            
     };
 }
 

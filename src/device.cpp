@@ -13,11 +13,13 @@ namespace domoticdevices {
     */
     int Device::priority_counter_ = 1;
 
-    void Device::set_start_time(const int start_time){
-        if (start_time < 0 || start_time > 1440) {
+    void Device::set_start_timer(const int start_timer){
+        // Setting a timer before the current time will never make 
+        // the device start thus we launch an exception
+        if (start_timer < home_->get_time() || start_timer > 1440) {
             throw std::invalid_argument("Start time must be between 0 and 1440");
         }
-        start_time_ = start_time;
+        start_timer_ = start_timer;
     }
 
     void Device::subscribe(Home& h){
@@ -78,7 +80,9 @@ namespace domoticdevices {
     */
     void Device::start(){
         if(!running_){
-            priority_ = priority_counter_++;
+            //Maintaining "keep on" priority 
+            if(priority_ != -1)
+                priority_ = priority_counter_++;
             start_time_ = home_->get_time();
             running_ = true;
             home_->update(power_);
@@ -90,10 +94,20 @@ namespace domoticdevices {
     */
     void Device::stop(){
         if(running_){
-            priority_ = 0;
+            // Maintaining "keep on" priority
+            if (priority_ > 0) priority_ = 0;
             running_ = false;
+            start_time_ = -1;
             home_->update(-power_);
         }
+    }
+
+    /**
+    * 
+     */
+    void Device::reset(){
+        stop();
+        total_power_ = 0;
     }
 
     /**
