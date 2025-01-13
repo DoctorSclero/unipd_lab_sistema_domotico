@@ -10,12 +10,12 @@
 
 namespace domoticdevices{
     /**
-    * updates the state of the device:
-    *  - turns on if start_timer_ = home.get_time()
-    *  - turns off if stop_timer_ = home.get_time()
-    *  - keeps current state otherwise
-    * adds the amount of power consumed in a minute in total_energy_
-    */
+     * updates the state of the device:
+     *  - turns on if start_timer_ = home.get_time()
+     *  - turns off if stop_timer_ = home.get_time()
+     *  - keeps current state otherwise
+     * adds the amount of power consumed in a minute in total_energy_
+     */
     void ManualDevice::update(){
         if (start_timer_ == home_->get_time()) {
             start();
@@ -29,10 +29,10 @@ namespace domoticdevices{
     }
 
     /**
-    * @param stop_timer The stop timer to be set, its value
-    * must be greater than start_timer_ and less than 1440
-    * @throws bad_time_range
-    */
+     * @param stop_timer The stop timer to be set, its value
+     * must be greater than start_timer_ and less than 1440
+     * @throws bad_time_range
+     */
     void ManualDevice::set_stop_timer(const int stop_timer) {
         if(stop_timer <= start_timer_ || stop_timer > 1439)
             throw bad_time_range(timetostr(start_timer_), timetostr(1439));
@@ -40,9 +40,9 @@ namespace domoticdevices{
     }
 
     /**
-    * removes both the timers of the device
-    * by setting that to -1
-    */
+     * removes both the timers of the device
+     * by setting that to -1
+     */
     void ManualDevice::remove_timers(){
         start_timer_ = -1;
         stop_timer_ = -1;

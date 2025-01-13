@@ -14,11 +14,12 @@ namespace domoticdevices {
     
     class Device {
         protected:
+            constexpr int MAX_TIME = 1439;
             /**
-            * Used to assign a unique id to 
-            * every new object of class Device 
-            * that is created
-            */
+             * Used to assign a unique id to 
+             * every new object of class Device 
+             * that is created
+             */
             static int id_counter_;
 
             /**
@@ -33,19 +34,19 @@ namespace domoticdevices {
             std::string name_;
 
             /**
-            * - > 0 if the device produces power
-            * - < 0 if the device consumes power
-            */
+             * - > 0 if the device produces power
+             * - < 0 if the device consumes power
+             */
             double power_;
 
             /**
-            * Used to handle the order of shutdown when
-            * the maximum power limit of the house is reached.
-            * Device are shut following this criteria:
-            * - -1: indicates that the Device should be kept on as much as possible
-            * - 0:  indicates the the Device is already turned off
-            * - > 0: indicates that the Device is turned on, the Device with the highest priority is the first to be shut down
-            */
+             * Used to handle the order of shutdown when
+             * the maximum power limit of the house is reached.
+             * Device are shut following this criteria:
+             * - -1: indicates that the Device should be kept on as much as possible
+             * - 0:  indicates the the Device is already turned off
+             * - > 0: indicates that the Device is turned on, the Device with the highest priority is the first to be shut down
+             */
             int priority_;
             int start_time_;
             int start_timer_;
@@ -75,61 +76,11 @@ namespace domoticdevices {
              */
             Device(const Device&) = delete;
             Device& operator=(const Device&) = delete;
-            
-            /**
-             * Compares two devices by their priority.
-             * @param other_device The device to compare
-             * @returns true if device < other_device
-             */
-            bool operator<(const Device& other_device) const;
 
             /**
-             * Checks equality of two devices
-             * @param other_device The device to check
-             * @returns true if the two devices are the same
-             */
-            bool operator==(const Device& other_device) const;
-
-            /**
-             * Checks if device has a particular name
-             * @param other_name The name to check
-             * @return true if device has the same name as other name
-             */
-            bool operator==(const std::string other_name) const;
-
-            /**
-             * Retrieves the name of the device
-             * @returns The name of the device
-             */
-            std::string get_name() const;
-
-            /**
-             * Retrieves the id of the device
-             * @returns The id of the device
-             */
-            int get_id() const;
-
-            /**
-             * Retrieves the power of the device
-             * @returns The power of the device
-             */
-            double get_power() const;
-
-            /**
-             * Retrieves the priority of the device
-             * @returns The priority of the device
-             */
-            int get_priority() const;
-
-            /**
-             * Checks whether the device is running
-             * @returns true if the device is running
-             */
-            bool is_running() const;
-
-            /**
-             * Alters the device starting time
-             * @param time The new starting time
+             * sets the start timers only if the new timer 
+             * is greater than the current time and less or equal than MAX_TIME
+             * @param start_timer The new start timer to be set
              * @throws bad_time_range
              */
             void set_start_timer(const int start_timer);
@@ -143,40 +94,93 @@ namespace domoticdevices {
             void subscribe(Home& h);
 
             /**
-             * Starts the device
+             * Retrieves the power of the device
+             * @returns The power of the device
+             */
+            double get_power() const;
+
+            /**
+             * Retrieves the id of the device
+             * @returns The id of the device
+             */
+            int get_id() const;
+
+            /**
+             * Retrieves the name of the device
+             * @returns The name of the device
+             */
+            std::string get_name() const;
+
+            /**
+             * Retrieves the priority of the device
+             * @returns The priority of the device
+             */
+            int get_priority() const;
+
+            /**
+             * Checks whether the device is running
+             * @returns true if the device is running
+             */
+            bool is_running() const;
+            
+            /**
+             * Compares two devices by their priority.
+             * @param other_device The device to compare
+             * @returns true if device < other_device, false otherwise
+             */
+            bool operator<(const Device& other_device) const;
+
+            /**
+             * checks equality between two devices based on their names
+             * @param other_device the other Device wihich is being confronted
+             * @return true if the devices have the same name, false otherwise
+             */
+            bool operator==(const Device& other_device) const;
+
+            /**
+             * checks equality between a device's name and a string
+             * @param other_name the string which is supposed to contain a name of a device
+             * @return true if the device's name is the same as other_name, false otherwise
+             */
+            bool operator==(const std::string other_name) const;
+
+            /**
+             * starts the device if it isn't already running
+             * and updates the home about the power change
              */
             void start();
 
             /**
-             * Stops the device
+             * stops the device only if the device is running
+             * and updates the home about the power change
              */
             void stop();
 
             /**
-             * Creates a string representation
-             * of the power consumption of the day
-             */
-            std::string to_string() const;
-
-            /**
-            * resets the device to its initial state and
-            * gets turned off.
+             * Resets the device to its inital state and
+             * gets turned off.
+             * the function stop() is called and
+             * total_energy_ is set to 0
              */
             void reset();
 
             /**
+             * Prints information about the device including
+             * the total energy consumed, from 00:00 to the current time
+             */
+            std::string to_string() const;
+
+            /**
              * Used by the home for notifying time updates.
-             * Let devices handle starting up and stopping
-             * on their own.
-             * The function is pure virtual because every device
-             * must implement their logic of update
+             * Let devices handle the critieria to start 
+             * and stop on their own
              */
             virtual void update() = 0;
 
             /**
-            * removes all the timers of the device
-            * the function is pure virtual because devices can have a 
-            * different amount of timers
+             * Removes all the timers of the device
+             * the function is pure virtual because devices can have a 
+             * different amount of timers
              */
             virtual void remove_timers() = 0;
             

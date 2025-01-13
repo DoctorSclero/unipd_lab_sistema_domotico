@@ -15,30 +15,30 @@ namespace domoticdevices {
             int stop_timer_;
         public:
             /**
-            * @param name The name of the device
-            * @param power The power of the device (< 0 if consumes, > 0 if produces)
-            * @param priority True if the device should be kept on when auto power off is activated, false otherwise
-            */
+             * @param name The name of the device
+             * @param power The power of the device (< 0 if consumes, > 0 if produces)
+             * @param priority True if the device should be kept on when auto power off is activated, false otherwise
+             */
             ManualDevice(const std::string name, const double power, const bool keep_on) 
             : Device{name, power, keep_on} {}
 
             /**
-            * @param stop_timer The stop timer to be set, its value
-            * must be greater than start_timer_ and less than 1441
-            * @throws bad_time_range
-            */
-            void set_stop_timer(const int stop_timer);
-            
-            /**
-            * updates the state of the device based on its internal timers
-            * and the home time
-            */
+             * updates the state of the device based on its internal timers
+             * and the home time
+             */
             void update() override;
 
             /**
-            * removes both the timers of the device
-            * by setting that to -1
-            */
+             * @param stop_timer The stop timer to be set, its value
+             * must be greater than start_timer_ and less or equal than MAX_TIME
+             * @throws bad_time_range
+             */
+            void set_stop_timer(const int stop_timer);
+
+            /**
+             * removes both the timers of the device
+             * by setting that to -1
+             */
             void remove_timers() override;
     };
 }

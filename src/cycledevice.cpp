@@ -9,12 +9,12 @@
 
 namespace domoticdevices {
     /**
-    * @param name The name of the device
-    * @param power The power of the device (< 0 if consumes, > 0 if produces)
-    * @param keep_on True if the device should be kept on when auto power off is activated, false otherwise
-    * @param cycle_duration The cycle duration of the device, must be > 0
-    * @throws bad_cycle_duration
-    */
+     * @param name The name of the device
+     * @param power The power of the device (< 0 if consumes, > 0 if produces)
+     * @param keep_on True if the device should be kept on when auto power off is activated, false otherwise
+     * @param cycle_duration The cycle duration of the device, must be > 0
+     * @throws bad_cycle_duration
+     */
     CycleDevice::CycleDevice(const std::string name, const double power, const bool keep_on, const int cycle_duration)
     : Device{name, power, keep_on} {
         if(cycle_duration > 0)
@@ -24,12 +24,12 @@ namespace domoticdevices {
     }
 
     /**
-    * updates the state of the device:
-    *  - turns on if home->get_time() = start_timer_
-    *  - turns off if home->get_time() = start_time_ + cycle_duration_
-    *  - keeps current state otherwise
-    * adds the amount of power consumed in a minute to total_energy_
-    */
+     * updates the state of the device:
+     *  - turns on if home->get_time() = start_timer_
+     *  - turns off if home->get_time() = start_time_ + cycle_duration_
+     *  - keeps current state otherwise
+     * adds the amount of power consumed in a minute to total_energy_
+     */
     void CycleDevice::update(){
         if (home_->get_time() == start_timer_) {
             start();
@@ -43,9 +43,9 @@ namespace domoticdevices {
     }
 
     /**
-    * removes that start_timer_ by setting it 
-    * at -1
-    */
+     * removes that start_timer_ by setting it 
+     * at -1
+     */
     void CycleDevice::remove_timers(){
         start_timer_ = -1;
     }
