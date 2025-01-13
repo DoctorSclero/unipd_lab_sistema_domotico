@@ -1,3 +1,8 @@
+/**
+ * @author Diego Chiesurin
+ * @matricola 2111553
+ */
+
 #ifndef DOMOTIC_DEVICES_DEVICE_H
 #define DOMOTIC_DEVICES_DEVICE_H
 
@@ -7,10 +12,6 @@
 namespace domoticdevices {
     class Home;
     
-    /**
-    * base abstract class
-    * represents the common caracteristics of a Device
-    */
     class Device {
         protected:
             /**
@@ -19,36 +20,54 @@ namespace domoticdevices {
             * that is created
             */
             static int id_counter_;
+
             /**
-             * Determines the current priority.
+             * Determines the priority to be assigned to a
+             * newly started device
              * Increases by one on every device startup
-             * Decreases by one on every device shutdown
+             * only if the device doesn't have priority_ = -1
+             * Never decreases.
              */
             static int priority_counter_;
             int id_;
             std::string name_;
-            double power_; //both positive or negative
+
+            /**
+            * - > 0 if the device produces power
+            * - < 0 if the device consumes power
+            */
+            double power_;
+
             /**
             * Used to handle the order of shutdown when
             * the maximum power limit of the house is reached.
             * Device are shut following this criteria:
-            * - `priority == -1`: indicates that the Device should be kept on as much as possible
-            * - `priority == 0`:  indicates the the Device is already turned off
-            * - `priority > 0`: indicates that the Device is turned on, the Device with the highest priority is the first to be shut down
+            * - -1: indicates that the Device should be kept on as much as possible
+            * - 0:  indicates the the Device is already turned off
+            * - > 0: indicates that the Device is turned on, the Device with the highest priority is the first to be shut down
             */
             int priority_;
             int start_time_;
             int start_timer_;
             bool running_;
-            double total_power_;
+            double total_energy_;
             Home* home_;
             
             /**
              * @param name The name of the device
              * @param power The power of the device
+             * @param keep_on True if the device should be kept on when auto power off is activated, false otherwise
              */
-            Device(const std::string name, const double power, const int priority)
-            : id_{id_counter_++}, running_{false}, name_{name}, priority_{priority}, start_time_{-1}, start_timer_{-1}, power_{power} {}
+            Device(const std::string name, const double power, const bool keep_on)
+            :   id_{id_counter_++}, 
+                running_{false}, 
+                name_{name}, 
+                start_time_{-1}, 
+                start_timer_{-1}, 
+                power_{power}, 
+                total_energy_{0}, 
+                priority_{keep_on ? -1 : 0} 
+            {}
 
         public:
             /**
@@ -111,6 +130,7 @@ namespace domoticdevices {
             /**
              * Alters the device starting time
              * @param time The new starting time
+             * @throws bad_time_range
              */
             void set_start_timer(const int start_timer);
 
@@ -139,7 +159,8 @@ namespace domoticdevices {
             std::string to_string() const;
 
             /**
-            * 
+            * resets the device to its initial state and
+            * gets turned off.
              */
             void reset();
 
@@ -147,11 +168,15 @@ namespace domoticdevices {
              * Used by the home for notifying time updates.
              * Let devices handle starting up and stopping
              * on their own.
+             * The function is pure virtual because every device
+             * must implement their logic of update
              */
             virtual void update() = 0;
 
             /**
-            * 
+            * removes all the timers of the device
+            * the function is pure virtual because devices can have a 
+            * different amount of timers
              */
             virtual void remove_timers() = 0;
             

@@ -1,8 +1,15 @@
-#include "device.h"
+/**
+ * @author Diego Chiesurin
+ * @matricola 2111553
+ */
 
+#include "device.h"
+#include "exception.h"
+#include "utils.h"
 #include <sstream>
 
 namespace domoticdevices {
+
     /**
     * initializes the counter of the id to 0
     */
@@ -13,15 +20,27 @@ namespace domoticdevices {
     */
     int Device::priority_counter_ = 1;
 
+    /**
+    * sets the start timers only if the new timer 
+    * is between the current time plus one minute and 1439
+    * @param start_timer The new start timer to be set
+    * @throws bad_time_range
+    */
     void Device::set_start_timer(const int start_timer){
         // Setting a timer before the current time will never make 
         // the device start thus we launch an exception
-        if (start_timer < home_->get_time() || start_timer > 1440) {
-            throw std::invalid_argument("Start time must be between 0 and 1440");
-        }
+        if (start_timer < home_->get_time() || start_timer > 1439)
+            throw bad_time_range(timetostr(home_->get_time()), timetostr(1439));
+        
         start_timer_ = start_timer;
     }
 
+    /**
+    * House observer, subscribes an house
+    * to handle device status changes
+    * (es. device turning on notifications)
+    * @param h The home to subscribe
+    */
     void Device::subscribe(Home& h){
         home_ = &h;
     }
@@ -54,8 +73,6 @@ namespace domoticdevices {
     bool Device::operator<(const Device& other_device) const { 
         return (this->priority_ < other_device.priority_);
     }
-    
-    // ? Should we do an operator> for consistency ?
 
     /**
     * checks equality between two devices based on their name
@@ -77,6 +94,7 @@ namespace domoticdevices {
 
     /**
     * starts the device if it isn't already running
+    * and updates the home about the power change
     */
     void Device::start(){
         if(!running_){
@@ -85,12 +103,16 @@ namespace domoticdevices {
                 priority_ = priority_counter_++;
             start_time_ = home_->get_time();
             running_ = true;
+            //update the home about the power change
             home_->update(power_);
+            //logging
+            home_->get_logger().log("Il dispositivo \"" + name_ + "\" si e' acceso");
         }
     }
 
     /**
     * stops the device only if the device is running
+    * and updates the home about the power change
     */
     void Device::stop(){
         if(running_){
@@ -98,26 +120,32 @@ namespace domoticdevices {
             if (priority_ > 0) priority_ = 0;
             running_ = false;
             start_time_ = -1;
+            //update the home about the power change
             home_->update(-power_);
+            //logging
+            home_->get_logger().log("Il dispositivo \"" + name_ + "\" si e' spento");
         }
     }
 
     /**
-    * 
-     */
+    * Resets the device to its inital state and
+    * gets turned off.
+    * the function stop() is called and
+    * total_energy_ is set to 0
+    */
     void Device::reset(){
         stop();
-        total_power_ = 0;
+        total_energy_ = 0;
     }
 
     /**
      * Prints information about the device including
-     * the total power consumed
+     * the total energy consumed, from 00:00 to the current time
      */
     std::string Device::to_string() const{
         std::stringstream res;
 
-        res << "Il dispositivo " << name_ << " ha consumato " << total_power_ << "kWh" << std::endl;
+        res << "Il dispositivo " << name_ << (power_ > 0 ? " ha generato " : "  ha consumato ") << total_energy_ << "kWh" << std::endl;
 
         return res.str();
     }

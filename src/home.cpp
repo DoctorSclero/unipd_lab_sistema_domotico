@@ -1,3 +1,7 @@
+/**
+ * @author Pietro Ballarin
+ * @matricola 2109942
+ */
 #include "home.h"
 
 #include <algorithm>
@@ -5,10 +9,12 @@
 #include <sstream>
 
 #include "manualdevice.h"
+#include "exception.h"
+#include "utils.h"
 
 namespace domoticdevices {
     // Utility functions
-
+    
     /**
      * Storts the devices vector by prioirity
      * being the complexity of insertion sort = O(n + k)
@@ -53,9 +59,7 @@ namespace domoticdevices {
         );
 
         if (device == this->devices_.end()) {
-            // Device not found
-            throw std::invalid_argument("cannot find device " + device_name);
-            return;
+            throw device_not_found(device_name);
         }
 
         (*device)->start();
@@ -72,35 +76,38 @@ namespace domoticdevices {
         );
 
         if (device == this->devices_.end()) {
-            // Device not found
-            throw std::invalid_argument("cannot find device " + device_name);
+            throw device_not_found(device_name);
         }
 
         (*device)->stop();
     }
 
-    /**
-     * Moves on the internal clock of the house,
-     * informing the device of the passed time.
-     * Device recieves updates from current_time_ to
-     * time-1 included.
-     */
     void Home::set_time(const int time) {
         // Throwing an error if the time is not in the correct range
         if (time <= this->get_time() || time >= 1440) {
-            std::stringstream ss;
-            ss << "Time must be between " << time/60 << ":" << time%60 << " and 23:59";
-            throw std::invalid_argument(ss.str());
+            throw bad_time_range(timetostr(this->get_time()), timetostr(1440));
         }
+        
+        // Creating a copy of the devices_ array to prevent
+        // loops caused by device_ reordering during device updates.
+        // O(N) time operation, could be transformed in O(1) by
+        // keeping a copy of the devices_ array in the class members
+        // the impact in the application is negligeable given the
+        // low amount of devices the house has from specification.
+        std::vector<Device*> devices_copy = devices_;
 
+        this->logger_.log("L'orario attuale e' " + timetostr(this->get_time()));
+        
         // Updating all the subscribed devices minute by minute
         while (this->current_time_ < time) {
-            auto device = this->devices_.begin();
-            while (device != this->devices_.end()) {
-                (*device)->update();
-            }
             this->current_time_++;
+            auto device = devices_copy.begin();
+            while (device != devices_copy.end()) {
+                (*device++)->update();
+            }
         }
+
+        this->logger_.log("L'orario attuale e' " + timetostr(this->get_time()));
     }
     
     void Home::set_start_timer(const int time, const std::string device_name) {
@@ -115,13 +122,13 @@ namespace domoticdevices {
 
         // If device isn't found throw exception
         if (device == this->devices_.end()) {
-            throw std::invalid_argument("Cannot find device " + device_name);
+            throw device_not_found(device_name);
         }
         
         (*device)->set_start_timer(time);
     }
 
-    void Home::set_stop_timer(const int time, const std::string device_name) {
+    void Home::set_timers(const int start_time, const int stop_time, const std::string device_name) {
         // Finding the device
         auto device = find_if(
             this->devices_.begin(), 
@@ -133,26 +140,26 @@ namespace domoticdevices {
 
         // If device isn't found throw exception
         if (device == this->devices_.end()) {
-            throw std::invalid_argument("cannot find device " + device_name);
+            throw device_not_found(device_name);
         }
 
         ManualDevice* md = dynamic_cast<ManualDevice*>(*device);
-        if (md != nullptr) md->set_stop_timer(time);
-        else {
-            // TODO: launch exception not a manual device
+        if (md != nullptr) {
+            md->set_start_timer(start_time);
+            md->set_stop_timer(stop_time);
+        } else {
+            throw bad_device_type("Il dispositivo deve essere un dispositivo manuale");
         }
     }
 
-    // ? Check for correct functionality
     void Home::show() {
-        std::stringstream sstream;
+        std::stringstream ss;
         for (Device* device : this->devices_) {
-            sstream << device->to_string();
+            ss << device->to_string();
         }
-        this->get_logger().log(sstream.str());
+        this->get_logger().log(ss.str());
     }
 
-    // ? Check for correct functionality
     void Home::show(const std::string device_name) {
         
         auto device = find_if(
@@ -164,7 +171,7 @@ namespace domoticdevices {
         );
 
         if (device == this->devices_.end()) {
-            throw std::invalid_argument("cannot find device " + device_name);
+            throw device_not_found(device_name);
         }
 
         this->get_logger().log((*device)->to_string());
@@ -207,25 +214,21 @@ namespace domoticdevices {
     // Observer pattern
     void Home::subscribe(Device& device) {
         if (
-            // ! All find member function are comparing pointers with actual objects
             find_if(
                 this->devices_.begin(), 
                 this->devices_.end(),
                 [&device] (Device* d) {
                     return *d == device;
                 }
-            ) != this->devices_.end()
+            ) == this->devices_.end()
         ) {
             this->devices_.push_back(&device);
             device.subscribe(*this);
-            // TODO: subscribe house to device
+        } else {
+            throw device_already_present(device.get_name());
         }
     }
 
-    /**
-     * ! Il metodo ha ripercussioni ricorsive stop_device
-     * ! chiama Device::stop() che chiama Home::update()
-     */
     void Home::update(const double consumption_delta) {
         
         // Sorting the devices by priority
@@ -237,6 +240,10 @@ namespace domoticdevices {
         // Shutting down devices if house power network is overloaded
         if (this->current_load_ > this->network_power_) {
             auto device = this->devices_.end();
+
+            // Recursion happens since stop_device calls back Home::update
+            // this leads to the home shutting all necessary devices to stay
+            // under the power line threshold
             stop_device((*device)->get_name());
         }
 
@@ -249,7 +256,7 @@ namespace domoticdevices {
     Home::Logger::Logger(const char* file_path, const Home* home)
     : home_{home}, file_{file_path, std::ios_base::app} {
         if (!this->file_.is_open()) {
-            throw std::runtime_error("Cannot open log file");
+            throw std::runtime_error("Impossibile aprire il file di log");
         }
         
     };
@@ -262,16 +269,11 @@ namespace domoticdevices {
 
     void Home::Logger::log(const std::string message) {
         std::stringstream ss;
-        
-        // Time formatting [minutes since 00:00] -> hh:mm
-        int current_time = this->home_->get_time();
-        int current_hour = current_time / 60;
-        int current_min = current_time % 60;
-        
-        ss << "[" << current_hour << ":" << current_min << "] ";
+
+        // Calcola ore e minuti
+        ss << "[" << timetostr(this->home_->get_time()) << "] ";
         ss << message;
-        
-        std::cout << ss.str();
-        this->file_ << ss.str();
+        std::cout << ss.str() << std::endl;
+        this->file_ << ss.str() << std::endl;
     }
 }

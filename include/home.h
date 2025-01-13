@@ -1,3 +1,8 @@
+/**
+ * @author Pietro Ballarin
+ * @matricola 2109942
+ */
+
 #ifndef DOMOTIC_DEVICES_HOME_H
 #define DOMOTIC_DEVICES_HOME_H
 
@@ -64,7 +69,7 @@ namespace domoticdevices {
              ***************************************************/
 
             Home(const double network_power, const char* logfile_path)
-            : network_power_{network_power}, logger_{logfile_path, this} {}
+            : network_power_{network_power}, logger_{logfile_path, this}, current_time_{0} {}
 
             /***************************************************
              * Getters
@@ -103,7 +108,8 @@ namespace domoticdevices {
 
             /**
              * Sets the new current time. Iterates through each minute
-             * and informs devices of the passed time.
+             * from current_time+1 to time includes and informs
+             * devices of the passed time.
              * @param time The new target time
              */
             void set_time(const int time);
@@ -122,12 +128,12 @@ namespace domoticdevices {
              * @param device_name The name of the device to set the stop timer to
              * @throws `invalid_argument` if device is not present
              */
-            void set_stop_timer(const int time, const std::string device_name);
+            void set_timers(const int start_timer, const int stop_timer, const std::string device_name);
 
             /**
              * Logs the power consumtion of all the devices
              */
-            void show(); // ? removed const because prevents file logging
+            void show();
 
             /**
              * Logs the power consumption of the specified device

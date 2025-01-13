@@ -1,5 +1,12 @@
+/**
+ * @author Diego Chiesurin
+ * @matricola 2111553
+ */
+
 #include "manualdevice.h"
 #include "home.h"
+#include "exception.h"
+#include "utils.h"
 
 namespace domoticdevices{
     /**
@@ -7,32 +14,34 @@ namespace domoticdevices{
     *  - turns on if start_timer_ = home.get_time()
     *  - turns off if stop_timer_ = home.get_time()
     *  - keeps current state otherwise
-    * adds the amount of power consumed in a minute in total_power_
+    * adds the amount of power consumed in a minute in total_energy_
     */
     void ManualDevice::update(){
-        if(start_timer_ == home_->get_time()){
+        if (start_timer_ == home_->get_time()) {
             start();
-        }else if(stop_timer_ == home_->get_time()){
+        } else if (stop_timer_ == home_->get_time()) {
             stop();
         }
 
-        if(running_){
-            total_power_ += power_ / 60;
+        if (running_ && start_time_ != home_->get_time()) {
+            total_energy_ += power_ / 60;
         }
     }
 
     /**
-    * 
+    * @param stop_timer The stop timer to be set, its value
+    * must be greater than start_timer_ and less than 1440
+    * @throws bad_time_range
     */
-    void ManualDevice::set_stop_timer(const int stop_timer){
-        if(stop_timer > start_timer_ && stop_timer < 1441)
-            stop_timer_ = stop_timer;
-        else
-            throw std::invalid_argument("Stop timer must be > start timer <= 1440");
+    void ManualDevice::set_stop_timer(const int stop_timer) {
+        if(stop_timer <= start_timer_ || stop_timer > 1439)
+            throw bad_time_range(timetostr(start_timer_), timetostr(1439));
+        stop_timer_ = stop_timer;     
     }
 
     /**
-    * 
+    * removes both the timers of the device
+    * by setting that to -1
     */
     void ManualDevice::remove_timers(){
         start_timer_ = -1;
