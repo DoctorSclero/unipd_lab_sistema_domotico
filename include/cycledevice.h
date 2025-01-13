@@ -30,12 +30,6 @@ namespace domoticdevices {
              * @throws device_not_subscribed
              */
             void update() override;
-
-            /**
-             * removes that start_timer_ by setting it 
-             * at -1
-             */
-            void remove_timers() override;
     };
 }
 

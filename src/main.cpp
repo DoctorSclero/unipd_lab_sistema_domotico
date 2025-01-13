@@ -1,6 +1,6 @@
 /**
  * @author Elisa Chiarel
- * @matricola
+ * @matricola 2112891
  */
 
 #include <iostream>
@@ -140,7 +140,7 @@ int main(){
                 if (tokenized_command.at(0) == "set") {
                     if (tokenized_command.size() == 4) {
                         // set <device_name> <start_time> [stop_time]
-                        home.set_timers(
+                        home.set_timer(
                             to_time(tokenized_command.at(2)), 
                             to_time(tokenized_command.at(3)),
                             tokenized_command.at(1)
@@ -154,7 +154,7 @@ int main(){
                             // set <device_name> off
                             else if (tokenized_command.at(2) == "off") home.stop_device(tokenized_command.at(1));
                             // set <device_name> <start_time>
-                            else home.set_start_timer(to_time(tokenized_command.at(2)), tokenized_command.at(1));
+                            else home.set_timer(to_time(tokenized_command.at(2)), tokenized_command.at(1));
                         }
                     } else {
                         std::cout << "Sistema domotico: comando set" << std::endl

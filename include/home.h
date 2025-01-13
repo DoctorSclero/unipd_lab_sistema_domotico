@@ -125,7 +125,7 @@ namespace domoticdevices {
              * @param device_name The name of the device to set the start timer to
              * @throws `invalid_argument` if device is not present
              */
-            void set_start_timer(const int time, const std::string device_name);
+            void set_timer(const int time, const std::string device_name);
 
             /**
              * Sets the stop timer for the specified device identified
@@ -133,7 +133,7 @@ namespace domoticdevices {
              * @param device_name The name of the device to set the stop timer to
              * @throws `invalid_argument` if device is not present
              */
-            void set_timers(const int start_timer, const int stop_timer, const std::string device_name);
+            void set_timer(const int start_timer, const int stop_timer, const std::string device_name);
 
             /**
              * Logs the power consumtion of all the devices

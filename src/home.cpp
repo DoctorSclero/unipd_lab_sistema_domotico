@@ -2,6 +2,7 @@
  * @author Pietro Ballarin
  * @matricola 2109942
  */
+
 #include "home.h"
 
 #include <algorithm>
@@ -47,8 +48,6 @@ namespace domoticdevices {
     Home::Logger& Home::get_logger() {
         return this->logger_;
     }
-
-    // Command interface
 
     void Home::start_device(const std::string device_name) {
         auto device = find_if(
@@ -111,7 +110,7 @@ namespace domoticdevices {
         this->logger_.log("L'orario attuale e' " + timetostr(this->get_time()));
     }
     
-    void Home::set_start_timer(const int time, const std::string device_name) {
+    void Home::set_timer(const int start_time, const std::string device_name) {
         // Finding the device
         auto device = find_if(
             this->devices_.begin(), 
@@ -126,10 +125,10 @@ namespace domoticdevices {
             throw device_not_found(device_name);
         }
         
-        (*device)->set_start_timer(time);
+        (*device)->set_timer(start_time);
     }
 
-    void Home::set_timers(const int start_time, const int stop_time, const std::string device_name) {
+    void Home::set_timer(const int start_time, const int stop_time, const std::string device_name) {
         // Finding the device
         auto device = find_if(
             this->devices_.begin(), 
@@ -150,23 +149,24 @@ namespace domoticdevices {
             if (stop_time <= start_time) {
                 throw bad_time_range(timetostr(start_time), timetostr(MINUTES_IN_DAY));
             }
-            md->set_start_timer(start_time);
-            md->set_stop_timer(stop_time);
+            md->set_timer(start_time, stop_time);
         } else {
             throw bad_device_type("Il dispositivo deve essere un dispositivo manuale");
         }
     }
 
     void Home::show() {
+        // Appending the show of single devices
         std::stringstream ss;
         for (Device* device : this->devices_) {
             ss << device->to_string();
         }
+        // Logging
         this->get_logger().log(ss.str());
     }
 
     void Home::show(const std::string device_name) {
-        
+        // Finding the desired device
         auto device = find_if(
             this->devices_.begin(), 
             this->devices_.end(),
@@ -175,6 +175,7 @@ namespace domoticdevices {
             }
         );
 
+        // Device not found
         if (device == this->devices_.end()) {
             throw device_not_found(device_name);
         }
@@ -193,6 +194,7 @@ namespace domoticdevices {
     }
 
     void Home::reset_timer(std::string device_name) {
+        // Finding the desired device
         auto device = find_if(
             this->devices_.begin(),
             this->devices_.end(),
@@ -200,6 +202,11 @@ namespace domoticdevices {
                 return *device == device_name;
             }
         );
+
+        // Device not found
+        if (device == this->devices_.end()) {
+            throw device_not_found(device_name);
+        }
 
         (*device)->remove_timers();
     }
@@ -218,6 +225,7 @@ namespace domoticdevices {
 
     // Observer pattern
     void Home::subscribe(Device& device) {
+        // Detecting duplicate devices
         if (
             find_if(
                 this->devices_.begin(), 
@@ -241,15 +249,17 @@ namespace domoticdevices {
 
         // Updating the total power consumed
         this->current_load_ += consumption_delta;
-        
         // Shutting down devices if house power network is overloaded
         if (this->current_load_ > this->network_power_) {
-            auto device = this->devices_.end();
+            auto device = this->devices_.end()-1;
+
+            // Preventing segmentation fault when all device running are keep_on
+            while (!(*device)->is_running() && device != this->devices_.begin()) device--;
 
             // Recursion happens since stop_device calls back Home::update
             // this leads to the home shutting all necessary devices to stay
             // under the power line threshold
-            stop_device((*device)->get_name());
+            stop_device((*(device))->get_name());
         }
 
     }
@@ -260,13 +270,14 @@ namespace domoticdevices {
 
     Home::Logger::Logger(const char* file_path, const Home* home)
     : home_{home}, file_{file_path, std::ios_base::app} {
+        // Detecting file problems
         if (!this->file_.is_open()) {
             throw std::runtime_error("Impossibile aprire il file di log");
         }
-        
     };
 
     Home::Logger::~Logger() {
+        // Managing resources
         if (this->file_.is_open()) {
             this->file_.close();
         }

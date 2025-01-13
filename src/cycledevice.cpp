@@ -32,23 +32,24 @@ namespace domoticdevices {
      * @throws device_not_subscribed
      */
     void CycleDevice::update(){
-        if(!home_) throw device_not_subscribed(name_);
-        if (home_->get_time() == start_timer_) {
+        /**
+         * The home isn't set in the costructor, so
+         * its is mandatory to check wheter the home
+         * was set later on or not
+         */
+        if(!home_) 
+            throw device_not_subscribed(name_);
+        
+        if (home_->get_time() == start_timer_) 
             start();
-        } else if (home_->get_time() == start_time_ + cycle_duration_) {
+        else if (home_->get_time() == start_time_ + cycle_duration_) 
             stop();
-        }
-
-        if(running_ && start_time_ != home_->get_time()){
+        
+        /**
+         * Adds the power consumed/generated in a minute,
+         * excluding the minute the device is started
+         */
+        if(running_ && start_time_ != home_->get_time())
             total_energy_ += power_ / 60;
-        }
-    }
-
-    /**
-     * removes that start_timer_ by setting it 
-     * at -1
-     */
-    void CycleDevice::remove_timers(){
-        start_timer_ = -1;
     }
 }

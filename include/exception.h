@@ -31,15 +31,14 @@ namespace domoticdevices {
         bad_device_type(std::string message)
         : std::invalid_argument{message} {}
     };
-
     struct device_already_present : public std::invalid_argument {
         device_already_present(std::string device_name)
         : std::invalid_argument("Il dispositivo " + device_name + " e' gia' presente") {}
     };
 
-    struct device_not_subscribed : public std::invalid_argument {
+    struct device_not_subscribed : public std::runtime_error {
         device_not_subscribed(std::string device_name) 
-        : std::invalid_argument{"Il dispositivo " + device_name + " non e' stato assegnato ad una casa"} {}
+        : std::runtime_error{"Il dispositivo " + device_name + " non e' stato assegnato ad una casa"} {}
     };
 
 }

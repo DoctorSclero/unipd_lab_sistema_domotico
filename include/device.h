@@ -67,7 +67,7 @@ namespace domoticdevices {
                 start_time_{-1}, 
                 start_timer_{-1}, 
                 power_{power}, 
-                total_energy_{0}, 
+                total_energy_{0.0}, 
                 priority_{keep_on ? -1 : 0} 
             {}
 
@@ -84,46 +84,35 @@ namespace domoticdevices {
              * @param start_timer The new start timer to be set
              * @throws bad_time_range, device_not_subscribed
              */
-            void set_start_timer(const int start_timer);
+            void set_timer(const int start_timer);
 
             /**
              * House observer, subscribes an house
              * to handle device status changes
              * (es. device turning on notifications)
+             *
              * @param h The home to subscribe
              */
             void subscribe(Home& h);
 
             /**
-             * Retrieves the power of the device
-             * @returns The power of the device
-             */
-            double get_power() const;
-
-            /**
-             * Retrieves the id of the device
-             * @returns The id of the device
-             */
-            int get_id() const;
-
-            /**
              * Retrieves the name of the device
-             * @returns The name of the device
+             * @return The name of the device
              */
             std::string get_name() const;
 
             /**
              * Retrieves the priority of the device
-             * @returns The priority of the device
+             * @return The priority of the device
              */
             int get_priority() const;
 
             /**
-             * Checks whether the device is running
-             * @returns true if the device is running
+             * Retrieves the running state of the Device
+             * @return True if the Device is running, false otherwise
              */
             bool is_running() const;
-            
+
             /**
              * Checks equality between two devices based on their names.
              * @param other_device The other Device to compare
@@ -174,19 +163,17 @@ namespace domoticdevices {
             std::string to_string() const;
 
             /**
+             * removes that start_timer_ by setting it 
+             * at -1
+             */
+            virtual void remove_timers();
+
+            /**
              * Used by the home for notifying time updates.
              * Let devices handle the critieria to start 
              * and stop on their own
              */
             virtual void update() = 0;
-
-            /**
-             * Removes all the timers of the device
-             * the function is pure virtual because devices can have a 
-             * different amount of timers
-             */
-            virtual void remove_timers() = 0;
-            
     };
 }
 
