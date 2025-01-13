@@ -28,9 +28,11 @@ namespace domoticdevices {
      *  - turns on if home->get_time() = start_timer_
      *  - turns off if home->get_time() = start_time_ + cycle_duration_
      *  - keeps current state otherwise
-     * adds the amount of power consumed in a minute to total_energy_
+     * adds the amount of power consumed/generated in a minute to total_energy_
+     * @throws device_not_subscribed
      */
     void CycleDevice::update(){
+        if(!home_) throw device_not_subscribed(name_);
         if (home_->get_time() == start_timer_) {
             start();
         } else if (home_->get_time() == start_time_ + cycle_duration_) {

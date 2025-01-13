@@ -9,7 +9,7 @@
 #include <sstream>
 
 namespace domoticdevices {
-
+    
     /**
      * initializes the counter of the id to 0
      */
@@ -22,15 +22,16 @@ namespace domoticdevices {
 
     /**
      * sets the start timers only if the new timer 
-     * is greater than the current time and less than 1440
+     * is greater than the current time and les than or equal to MINUTES_IN_DAY
      * @param start_timer The new start timer to be set
-     * @throws bad_time_range
+     * @throws bad_time_range, device_not_subscribed
      */
     void Device::set_start_timer(const int start_timer){
+        if(!home_) throw device_not_subscribed(name_);
         // Setting a timer before the current time will never make 
         // the device start thus we launch an exception
-        if (start_timer <= home_->get_time() || start_timer > 1439)
-            throw bad_time_range(timetostr(home_->get_time()), timetostr(1439));
+        if (start_timer <= home_->get_time() || start_timer > Home::MINUTES_IN_DAY)
+            throw bad_time_range(timetostr(home_->get_time()), timetostr(Home::MINUTES_IN_DAY));
         
         start_timer_ = start_timer;
     }
@@ -86,9 +87,9 @@ namespace domoticdevices {
     }
 
     /**
-     * Compares two devices by their priority.
-     * @param other_device The device to compare
-     * @returns true if device < other_device, false otherwise
+     * Checks equality between two devices based on their names.
+     * @param other_device The other Device to compare
+     * @return true if the devices have the same name, false otherwise
      */
     bool Device::operator<(const Device& other_device) const { 
         return (this->priority_ < other_device.priority_);
@@ -115,8 +116,11 @@ namespace domoticdevices {
     /**
      * starts the device if it isn't already running
      * and updates the home about the power change
+     * @throws device_not_subscribed
      */
     void Device::start(){
+        if(!home_) throw device_not_subscribed(name_);
+
         if(!running_){
             //Maintaining "keep on" priority 
             if(priority_ != -1)
@@ -135,6 +139,8 @@ namespace domoticdevices {
      * and updates the home about the power change
      */
     void Device::stop(){
+        if(!home_) throw device_not_subscribed(name_);
+
         if(running_){
             // Maintaining "keep on" priority
             if (priority_ > 0) 

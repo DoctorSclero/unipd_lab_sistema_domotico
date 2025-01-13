@@ -25,19 +25,21 @@ namespace domoticdevices {
             /**
              * updates the state of the device based on its internal timers
              * and the home time
+             * @throws device_not_subscribed
              */
             void update() override;
 
             /**
              * @param stop_timer The stop timer to be set, its value
-             * must be greater than start_timer_ and less or equal than MAX_TIME
+             * must be greater than start_timer_ and less or equal than MINUTES_IN_DAY
              * @throws bad_time_range
              */
             void set_stop_timer(const int stop_timer);
 
             /**
-             * removes both the timers of the device
-             * by setting that to -1
+             * Removes both timers of the device by setting:
+             *  - start_timer_ to -1
+             *  - stop_timer_ to -1
              */
             void remove_timers() override;
     };

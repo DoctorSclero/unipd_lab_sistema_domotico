@@ -25,11 +25,9 @@ namespace domoticdevices {
             CycleDevice(const std::string name, const double power, const bool keep_on, const int cycle_duration);
                 
             /**
-             * updates the state of the device:
-             *  - turns on if home->get_time() = start_timer_
-             *  - turns off if home->get_time() = start_time_ + cycle_duration_
-             *  - keeps current state otherwise
-             * adds the amount of power consumed in a minute to total_energy_
+             * updates the state of the device based on its internal timers
+             * and the home time
+             * @throws device_not_subscribed
              */
             void update() override;
 

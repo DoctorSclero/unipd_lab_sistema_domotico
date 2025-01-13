@@ -14,20 +14,20 @@ namespace domoticdevices {
     
     class Device {
         protected:
-            constexpr int MAX_TIME = 1439;
             /**
              * Used to assign a unique id to 
              * every new object of class Device 
              * that is created
+             * Increases by one every time a new Device is created
              */
             static int id_counter_;
 
             /**
-             * Determines the priority to be assigned to a
-             * newly started device
-             * Increases by one on every device startup
-             * only if the device doesn't have priority_ = -1
-             * Never decreases.
+             * Counter used to assign a unique priority to 
+             * devices when they turn on.
+             * Increases by one on every device startup, 
+             * unless the device has priority_ = -1 (keep_on).
+             * Never decreases to ensure unique ordering.
              */
             static int priority_counter_;
             int id_;
@@ -40,12 +40,12 @@ namespace domoticdevices {
             double power_;
 
             /**
-             * Used to handle the order of shutdown when
-             * the maximum power limit of the house is reached.
+             * Determines the shutdown order when the house 
+             * exceeds its power limit and the automatic power off is activated.
              * Device are shut following this criteria:
-             * - -1: indicates that the Device should be kept on as much as possible
-             * - 0:  indicates the the Device is already turned off
-             * - > 0: indicates that the Device is turned on, the Device with the highest priority is the first to be shut down
+             * - -1: Device should be kept on as much as possible
+             * - 0: Device is already turned off
+             * - > 0: Device is turned on, the Device with the highest priority is the first to be shut down
              */
             int priority_;
             int start_time_;
@@ -56,9 +56,10 @@ namespace domoticdevices {
             
             /**
              * @param name The name of the device
-             * @param power The power of the device
+             * @param power The power of the device (positive for producers, negative for consumers)
              * @param keep_on True if the device should be kept on when auto power off is activated, false otherwise
              */
+
             Device(const std::string name, const double power, const bool keep_on)
             :   id_{id_counter_++}, 
                 running_{false}, 
@@ -79,9 +80,9 @@ namespace domoticdevices {
 
             /**
              * sets the start timers only if the new timer 
-             * is greater than the current time and less or equal than MAX_TIME
+             * is greater than the current time and less than or equal to MINUTES_IN_DAY
              * @param start_timer The new start timer to be set
-             * @throws bad_time_range
+             * @throws bad_time_range, device_not_subscribed
              */
             void set_start_timer(const int start_timer);
 
@@ -124,9 +125,9 @@ namespace domoticdevices {
             bool is_running() const;
             
             /**
-             * Compares two devices by their priority.
-             * @param other_device The device to compare
-             * @returns true if device < other_device, false otherwise
+             * Checks equality between two devices based on their names.
+             * @param other_device The other Device to compare
+             * @return true if the devices have the same name, false otherwise
              */
             bool operator<(const Device& other_device) const;
 
@@ -147,12 +148,14 @@ namespace domoticdevices {
             /**
              * starts the device if it isn't already running
              * and updates the home about the power change
+             * @throws device_not_subscribed
              */
             void start();
 
             /**
              * stops the device only if the device is running
              * and updates the home about the power change
+             * @throws device_not_subscribed
              */
             void stop();
 

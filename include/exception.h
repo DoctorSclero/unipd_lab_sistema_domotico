@@ -37,6 +37,11 @@ namespace domoticdevices {
         : std::invalid_argument("Il dispositivo " + device_name + " e' gia' presente") {}
     };
 
+    struct device_not_subscribed : public std::invalid_argument {
+        device_not_subscribed(std::string device_name) 
+        : std::invalid_argument{"Il dispositivo " + device_name + " non e' stato assegnato ad una casa"} {}
+    };
+
 }
 
 #endif

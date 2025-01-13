@@ -13,6 +13,7 @@
 #include "utils.h"
 
 namespace domoticdevices {
+
     // Utility functions
     
     /**
@@ -84,8 +85,8 @@ namespace domoticdevices {
 
     void Home::set_time(const int time) {
         // Throwing an error if the time is not in the correct range
-        if (time <= this->get_time() || time >= 1440) {
-            throw bad_time_range(timetostr(this->get_time()), timetostr(1440));
+        if (time <= this->get_time() || time > MINUTES_IN_DAY) {
+            throw bad_time_range(timetostr(this->get_time()), timetostr(MINUTES_IN_DAY));
         }
         
         // Creating a copy of the devices_ array to prevent
@@ -145,6 +146,10 @@ namespace domoticdevices {
 
         ManualDevice* md = dynamic_cast<ManualDevice*>(*device);
         if (md != nullptr) {
+            // Throwing an error if the time is not in the correct range
+            if (stop_time <= start_time) {
+                throw bad_time_range(timetostr(start_time), timetostr(MINUTES_IN_DAY));
+            }
             md->set_start_timer(start_time);
             md->set_stop_timer(stop_time);
         } else {
