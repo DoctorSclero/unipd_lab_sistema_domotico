@@ -62,6 +62,8 @@ namespace domoticdevices {
             throw device_not_found(device_name);
         }
 
+        this->get_logger().log("L'orario attuale e' " + timetostr(this->get_time()));
+
         (*device)->start();
     }
 
@@ -79,6 +81,8 @@ namespace domoticdevices {
             throw device_not_found(device_name);
         }
 
+        this->get_logger().log("L'orario attuale e' " + timetostr(this->get_time()));
+
         (*device)->stop();
     }
 
@@ -88,6 +92,8 @@ namespace domoticdevices {
             throw bad_time_range(timetostr(this->get_time()), timetostr(MINUTES_IN_DAY));
         }
         
+        this->get_logger().log("L'orario attuale e' " + timetostr(this->get_time()));
+
         // Creating a copy of the devices_ array to prevent
         // loops caused by device_ reordering during device updates.
         // O(N) time operation, could be transformed in O(1) by
@@ -96,8 +102,6 @@ namespace domoticdevices {
         // low amount of devices the house has from specification.
         std::vector<Device*> devices_copy = devices_;
 
-        this->logger_.log("L'orario attuale e' " + timetostr(this->get_time()));
-        
         // Updating all the subscribed devices minute by minute
         while (this->current_time_ < time) {
             this->current_time_++;
@@ -125,6 +129,8 @@ namespace domoticdevices {
             throw device_not_found(device_name);
         }
         
+        this->get_logger().log("L'orario attuale e' " + timetostr(this->get_time()));
+
         (*device)->set_timer(start_time);
     }
 
@@ -143,6 +149,8 @@ namespace domoticdevices {
             throw device_not_found(device_name);
         }
 
+        this->get_logger().log("L'orario attuale e' " + timetostr(this->get_time()));
+
         ManualDevice* md = dynamic_cast<ManualDevice*>(*device);
         if (md != nullptr) {
             // Throwing an error if the time is not in the correct range
@@ -156,6 +164,7 @@ namespace domoticdevices {
     }
 
     void Home::show() {
+        this->get_logger().log("L'orario attuale e' " + timetostr(this->get_time()));
         // Appending the show of single devices
         std::stringstream ss;
         for (Device* device : this->devices_) {
@@ -180,10 +189,12 @@ namespace domoticdevices {
             throw device_not_found(device_name);
         }
 
+        this->get_logger().log("L'orario attuale e' " + timetostr(this->get_time()));
         this->get_logger().log((*device)->to_string());
     }
     
     void Home::reset_time() {
+        this->get_logger().log("L'orario attuale e' " + timetostr(this->get_time()));
         // Stopping all devices
         for (Device* device : this->devices_) {
             device->reset();
@@ -208,16 +219,19 @@ namespace domoticdevices {
             throw device_not_found(device_name);
         }
 
+        this->get_logger().log("L'orario attuale e' " + timetostr(this->get_time()));
         (*device)->remove_timers();
     }
 
     void Home::reset_timers() {
+        this->get_logger().log("L'orario attuale e' " + timetostr(this->get_time()));
         for (Device* device : this->devices_) {
             device->remove_timers();
         }
     }
 
     void Home::reset_all() {
+        this->get_logger().log("L'orario attuale e' " + timetostr(this->get_time()));
         // Resetting time and removing timers
         this->reset_time();
         this->reset_timers();
@@ -249,6 +263,7 @@ namespace domoticdevices {
 
         // Updating the total power consumed
         this->current_load_ += consumption_delta;
+
         // Shutting down devices if house power network is overloaded
         if (this->current_load_ > this->network_power_) {
             auto device = this->devices_.end()-1;

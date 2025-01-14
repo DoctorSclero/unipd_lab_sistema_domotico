@@ -174,6 +174,11 @@ namespace domoticdevices {
              * and stop on their own
              */
             virtual void update() = 0;
+
+            /**
+             * Static functions
+             */
+            static void reset_priority_counter();
     };
 }
 

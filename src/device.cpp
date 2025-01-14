@@ -197,4 +197,17 @@ namespace domoticdevices {
         //logging
         home_->get_logger().log("Rimosso il timer dal dispositivo '" + name_ + "'");
     }
+
+    /**
+     * Static function
+     * This function is used strictly from home, only when
+     * the reset time command is called, because the complete
+     * reset to the initial state is required.
+     * IMPORTANT: When this function is called every device in the home 
+     * should be turned off, otherwise the automatic shut down priority would be
+     * violated and wouldn't work correctly later on.
+     */
+    void Device::reset_priority_counter() {
+        Device::priority_counter_ = 1;
+    }
 }

@@ -1,0 +1,89 @@
+@startuml sistema_domotico
+skinparam linetype ortho
+left to right direction
+
+namespace domoticdevices {
+    class Device {
+        - static int id_counter_
+        - static int priority_counter_
+        - int id_
+        - std::string name_
+        - double power_
+        - int priority_
+        - int start_time_
+        - int start_timer_
+        - bool running_
+        - double total_energy_
+        - Home* home_
+        + Device(const std::string name, const double power, const bool keep_on)
+        + void set_timer(const int start_timer)
+        + void subscribe(Home& h)
+        + std::string get_name() const
+        + int get_priority() const
+        + bool is_running() const
+        + bool operator<(const Device& other_device) const
+        + bool operator==(const Device& other_device) const
+        + bool operator==(const std::string other_name) const
+        + void start()
+        + void stop()
+        + void reset()
+        + std::string to_string() const
+        + virtual void remove_timers()
+        + virtual void update() = 0
+        + static void reset_priority_counter()
+    }
+
+    class ManualDevice {
+        - int stop_timer_
+        + ManualDevice(const std::string name, const double power, const bool keep_on)
+        + void update() override
+        + void set_timer(const int start_timer, const int stop_timer)
+        + void remove_timers() override
+    }
+
+    class CycleDevice {
+        - int cycle_duration_
+        + CycleDevice(const std::string name, const double power, const bool keep_on, const int cycle_duration)
+        + void update() override
+    }
+
+    class Home {
+        - std::vector<Device*> devices_
+        - int current_time_
+        - double network_power_
+        - double current_load_
+        - Logger logger_
+        + Home(const double network_power, const char* logfile_path)
+        + int get_time() const
+        + Logger& get_logger()
+        + void start_device(const std::string device_name)
+        + void stop_device(const std::string device_name)
+        + void set_time(const int time)
+        + void set_timer(const int time, const std::string device_name)
+        + void set_timer(const int start_timer, const int stop_timer, const std::string device_name)
+        + void show()
+        + void show(const std::string device_name)
+        + void reset_time()
+        + void reset_timer(std::string device_name)
+        + void reset_timers()
+        + void reset_all()
+        + void subscribe(Device& device)
+        + void update(const double consumption_delta)
+    }
+
+    class Logger {
+        - const Home* home_
+        - std::ofstream file_
+        + Logger(const char* file_path, const Home* home)
+        + ~Logger()
+        + void log(const std::string message)
+    }
+}
+
+Home o-- Device : devices
+Home o-- Logger : logger
+Logger *-- Home : home
+Device o-- Home : home
+ManualDevice --|> Device
+CycleDevice --|> Device
+@enduml
