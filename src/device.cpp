@@ -31,7 +31,8 @@ namespace domoticdevices {
          */
         if(!home_) 
             throw device_not_subscribed(name_);
-
+        
+        //check start_timer correctness
         if (start_timer <= home_->get_time() || start_timer > Home::MINUTES_IN_DAY)
             throw bad_time_range(timetostr(home_->get_time()+1), timetostr(Home::MINUTES_IN_DAY));
         
@@ -41,6 +42,11 @@ namespace domoticdevices {
         home_->get_logger().log("Impostato un timer per il dispositivo '" + name_ + "' dalle " + timetostr(start_timer));
     }
 
+    /**
+     * Decresease priority by 1 
+     * Function used from home to decrement the priority
+     * (usually when a different device stops)
+     */
     void Device::decrease_priority(){
         if(priority_ > 0)
             priority_--;
@@ -97,9 +103,10 @@ namespace domoticdevices {
     }
 
     /**
-     * Checks equality between two devices based on their names.
+     * Defines the order between devices based on their priority
+     * this < other_device if this.priority_ < other_device.priority_
      * @param other_device The other Device to compare
-     * @return true if the devices have the same name, false otherwise
+     * @return true if this < other_device, false otherwise
      */
     bool Device::operator<(const Device& other_device) const { 
         return (this->priority_ < other_device.priority_);
@@ -134,7 +141,7 @@ namespace domoticdevices {
 
     /**
      * starts the device if it isn't already running
-     * and updates the home about the power change
+     * and updates the home about the status change
      * @throws device_not_subscribed
      */
     void Device::start(){
@@ -150,13 +157,13 @@ namespace domoticdevices {
             //gets the priority to be assigned from the home
             if(priority_ != -1)
                 priority_ = home_->get_priority_counter();
-            
+
             start_time_ = home_->get_time();
             running_ = true;
 
             //logging
             home_->get_logger().log("Il dispositivo '" + name_ + "' si e' acceso");
-            //update the home about the status change
+            //updates the home about the status change
             home_->update(*this);
         }
     }
@@ -185,7 +192,6 @@ namespace domoticdevices {
 
         //logging
         home_->get_logger().log("Il dispositivo '" + name_ + "' si e' spento");
-        //update the home about the status change
     }
 
     /**
@@ -196,7 +202,9 @@ namespace domoticdevices {
      */
     void Device::stop() {
         if (running_) {
+            //stop the device
             force_stop();
+            //update home
             home_->update(*this);
         }
     }
@@ -214,7 +222,7 @@ namespace domoticdevices {
 
     /**
      * Prints information about the device including
-     * the total energy consumed/generated, from 00:00 to the current time
+     * the total energy consumed/generated in kWh, from 00:00 to the current time
      */
     std::string Device::to_string() const{
         std::stringstream res;
@@ -226,13 +234,14 @@ namespace domoticdevices {
     }
 
     /**
-     * removes that start_timer_ by setting it 
-     * at -1
+     * removes that start_timer_ by setting it to -1
      */
     void Device::remove_timers(){
-        start_timer_ = -1;
+        if(start_timer_ != -1){
+            start_timer_ = -1;
 
-        //logging
-        home_->get_logger().log("Rimosso il timer dal dispositivo '" + name_ + "'");
+            //logging
+            home_->get_logger().log("Rimosso il timer dal dispositivo '" + name_ + "'");
+        }
     }
 }

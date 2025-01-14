@@ -23,9 +23,4 @@ add_executable(sistema_domotico
     src/main.cpp
 )
 
-add_executable(sistema_domotico_tester
-    test/main.cpp
-)
-
 target_link_libraries(sistema_domotico sistema_domotico_logic)
-target_link_libraries(sistema_domotico_tester sistema_domotico_logic)

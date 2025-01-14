@@ -10,7 +10,7 @@
 namespace domoticdevices {
     /**
      * @param name The name of the device
-     * @param power The power of the device (< 0 if consumes, > 0 if produces)
+     * @param power The power of the device (positive for producers, negative for consumers)
      * @param keep_on True if the device should be kept on when auto power off is activated, false otherwise
      * @param cycle_duration The cycle duration of the device, must be > 0
      * @throws bad_cycle_duration
@@ -47,10 +47,10 @@ namespace domoticdevices {
         if(running_)
             total_energy_ += power_ / 60;
             
+        //start and stop base on start timer and cycle duration
         if (home_->get_time() == start_timer_) 
             start();
         else if (home_->get_time() == start_time_ + cycle_duration_) 
             stop();
-        
     }
 }

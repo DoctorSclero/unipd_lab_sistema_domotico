@@ -15,31 +15,18 @@
 
 namespace domoticdevices {
 
-    // Utility functions
-    
-    /**
-     * Storts the devices vector by prioirity
-     * being the complexity of insertion sort = O(n + k)
-     * where n is the dimension of the array and k the number 
-     * of possible inversions. Then the total complexity of 
-     * sort_device used by home is O(n + c)
-     * where c is a constant ranging from 0 to n - 1
-     * because only one object's priority has been changed every 
-     * this function is called, so the number of possible inversions
-     * is, at most, the number of elements before or after the 
-     * modified object, which is n - 1
-     */
-    void sort_devices(std::vector<Device*>& devices) {
-        for (int i = 1; i < devices.size(); i++) {
-            Device* key = devices[i];
-            int j = i - 1;
-            while (j >= 0 && devices[j]->get_priority() > key->get_priority()) {
-                devices[j + 1] = devices[j];
-                j = j - 1;
-            }
-            devices[j + 1] = key;
-        }
+    /******************************************************
+     * Home implementation
+     ******************************************************/
+
+    // Constructors
+
+    Home::Home(const double network_power, const char* logfile_path)
+    : network_power_{network_power}, logger_{logfile_path, this}, current_time_{0}, priority_counter_{1} {
+        if (this->network_power_ < 0) throw std::invalid_argument("La potenza della rete della casa deve essere >= 0");
     }
+
+    // Getters
 
     int Home::get_time() const {
         return this->current_time_;
@@ -52,6 +39,8 @@ namespace domoticdevices {
     int Home::get_priority_counter() {
         return this->priority_counter_++;
     }
+
+    // Command interface
 
     void Home::start_device(const std::string device_name) {
         auto device = find_if(
@@ -128,7 +117,6 @@ namespace domoticdevices {
             }
         );
 
-        // If device isn't found throw exception
         if (device == this->devices_.end()) {
             throw device_not_found(device_name);
         }
@@ -139,7 +127,8 @@ namespace domoticdevices {
     }
 
     void Home::set_timer(const int start_time, const int stop_time, const std::string device_name) {
-        // Finding the device
+
+        // Finding the device by name
         auto device = find_if(
             this->devices_.begin(), 
             this->devices_.end(),
@@ -148,13 +137,13 @@ namespace domoticdevices {
             }
         );
 
-        // If device isn't found throw exception
         if (device == this->devices_.end()) {
             throw device_not_found(device_name);
         }
 
         this->get_logger().log("L'orario attuale e' " + timetostr(this->get_time()));
 
+        // Attempting ManualDevice conversion
         ManualDevice* md = dynamic_cast<ManualDevice*>(*device);
         if (md != nullptr) {
             // Throwing an error if the time is not in the correct range
@@ -169,7 +158,7 @@ namespace domoticdevices {
 
     void Home::show() {
         this->get_logger().log("L'orario attuale e' " + timetostr(this->get_time()));
-        // Appending the show of single devices
+
         std::stringstream ss;
 
         // Calculating generation and consumation
@@ -182,7 +171,7 @@ namespace domoticdevices {
         ss << "Attualmente il sistema ha prodotto " << generated << " kWh e consumato " << consumed << " kWh. ";
         ss << "Nello specifico:" << std::endl;
 
-        // Appending devices
+        // Appending devices info
         auto device = this->devices_.begin();
         while (device != this->devices_.end()) {
             ss << "\t- " << (*device)->to_string();
@@ -191,7 +180,7 @@ namespace domoticdevices {
             }
             device++;
         }
-        // Logging
+
         this->get_logger().log(ss.str());
     }
 
@@ -217,13 +206,12 @@ namespace domoticdevices {
     void Home::reset_time() {
         this->get_logger().log("L'orario attuale e' " + timetostr(this->get_time()));
 
-        // Stopping all devices
         for (Device* device : this->devices_) {
             device->reset();
         }
         
-        // Resetting the time of the house
         this->current_time_ = 0;
+
         this->get_logger().log("L'orario attuale e' " + timetostr(this->get_time()));
     }
 
@@ -254,13 +242,12 @@ namespace domoticdevices {
     }
 
     void Home::reset_all() {
-        this->get_logger().log("L'orario attuale e' " + timetostr(this->get_time()));
-        // Resetting time and removing timers
         this->reset_time();
         this->reset_timers();
     }
 
     // Observer pattern
+
     void Home::subscribe(Device& device) {
         // Detecting duplicate devices
         if (
@@ -282,18 +269,18 @@ namespace domoticdevices {
     void Home::update(Device& caller) {
         
         // Sorting the devices by priority
-        sort_devices(this->devices_);
+        std::sort(this->devices_.begin(), this->devices_.end(), [](Device* a, Device* b) {
+            return a->get_priority() < b->get_priority();
+        });
 
         // Updating the total power consumed
         if (caller.is_running()) this->current_load_ -= caller.get_power(); // Device was started
-        else { // Device was stopped
+        else {                                                              // Device was stopped
             this->current_load_ += caller.get_power();
 
             // Updating priority of shut non-keep-on devices
             if (caller.get_priority() == 0) {
-                // Update the global counter
                 this->priority_counter_--;
-                // Reducing priority of running devices
                 auto device = this->devices_.rbegin();
                 while ((*device)->is_running() && device != this->devices_.rend()) {
                     caller.decrease_priority();

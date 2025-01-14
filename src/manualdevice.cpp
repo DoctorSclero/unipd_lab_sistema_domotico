@@ -33,7 +33,8 @@ namespace domoticdevices{
          */
         if (running_) 
             total_energy_ += power_ / 60;
-
+        
+        //start and stop based on timers
         if (start_timer_ == home_->get_time())
             start();
         else if (stop_timer_ == home_->get_time()) 
@@ -42,7 +43,7 @@ namespace domoticdevices{
 
     /**
      * @param start_timer The start timer to be set, its value must
-     * be greater than the current time and greater than MINUTES_IN_DAY
+     * be greater than the current time and less than or equal to MINUTES_IN_DAY
      * @param stop_timer The stop timer to be set, its value
      * must be greater than start_timer and less than or equal to MINUTES_IN_DAY
      * @throws device_not_subscribed, bad_time_range
@@ -55,10 +56,12 @@ namespace domoticdevices{
          */
         if(!home_) 
             throw device_not_subscribed(name_);
-
+        
+        //check start_timer correctness
         if(start_timer <= home_->get_time() || start_timer > Home::MINUTES_IN_DAY)
             throw bad_time_range(timetostr(home_->get_time()+1), timetostr(Home::MINUTES_IN_DAY));
-
+        
+        //check stop_timer correctness
         if(stop_timer <= start_timer || stop_timer > Home::MINUTES_IN_DAY)
             throw bad_time_range(timetostr(start_timer+1), timetostr(Home::MINUTES_IN_DAY));
 
@@ -75,10 +78,12 @@ namespace domoticdevices{
      *  - stop_timer_ to -1
      */
     void ManualDevice::remove_timers() {
-        start_timer_ = -1;
-        stop_timer_ = -1;
+        if (start_timer_ != -1) {
+            start_timer_ = -1;
+            stop_timer_ = -1;
 
-        //logging
-        home_->get_logger().log("Rimossi i timer dal dispositivo '" + name_ + "'");
+            //logging
+            home_->get_logger().log("Rimossi i timer dal dispositivo '" + name_ + "'");
+        }   
     }
 }

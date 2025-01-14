@@ -78,13 +78,17 @@ namespace domoticdevices {
              */
             void set_timer(const int start_timer);
 
+            /**
+             * Decresease priority by 1
+             * Function used from home to decrement the priority
+             * (usually when a different device stops)
+             */
             void decrease_priority();
 
             /**
              * House observer, subscribes an house
              * to handle device status changes
              * (es. device turning on notifications)
-             *
              * @param h The home to subscribe
              */
             void subscribe(Home& h);
@@ -120,9 +124,10 @@ namespace domoticdevices {
             bool is_running() const;
 
             /**
-             * Checks equality between two devices based on their names.
+             * Defines the order between devices based on their priority
+             * this < other_device if this.priority_ < other_device.priority_
              * @param other_device The other Device to compare
-             * @return true if the devices have the same name, false otherwise
+             * @return true if this < other_device, false otherwise
              */
             bool operator<(const Device& other_device) const;
 
@@ -149,7 +154,7 @@ namespace domoticdevices {
 
             /**
              * starts the device if it isn't already running
-             * and updates the home about the power change
+             * and updates the home about the status change
              * @throws device_not_subscribed
              */
             void start();
@@ -180,7 +185,7 @@ namespace domoticdevices {
 
             /**
              * Prints information about the device including
-             * the total energy consumed, from 00:00 to the current time
+             * the total energy consumed/generated in kWh, from 00:00 to the current time
              */
             std::string to_string() const;
 

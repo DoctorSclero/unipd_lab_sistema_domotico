@@ -1,3 +1,7 @@
+/**
+ * @author Elisa Chiarel
+ * @matricola 2112891
+ */
 #ifndef DOMOTIC_DEVICES_EXCEPTIONS_H
 #define DOMOTIC_DEVICES_EXCEPTIONS_H
 

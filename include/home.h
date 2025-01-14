@@ -38,7 +38,7 @@ namespace domoticdevices {
                     /**
                      * Logger constructor
                      * @param file_path The log file path
-                     * @param home A reference to the home for time retrival
+                     * @param home A pointer to the home for time retrival
                      * @thorws `runtime_error` if the log file cannot be opened
                      */
                     Logger(const char* file_path, const Home* home);
@@ -49,7 +49,7 @@ namespace domoticdevices {
                     ~Logger();
 
                     /**
-                     * Loggs an event by writing it in the console
+                     * Logs an event by writing it in the console
                      * and on the specified log file.
                      * @param message The message to print
                      */
@@ -74,8 +74,7 @@ namespace domoticdevices {
              * Constructor
              ***************************************************/
 
-            Home(const double network_power, const char* logfile_path)
-            : network_power_{network_power}, logger_{logfile_path, this}, current_time_{0}, priority_counter_{1} {}
+            Home(const double network_power, const char* logfile_path);
 
             /***************************************************
              * Getters
@@ -95,7 +94,7 @@ namespace domoticdevices {
             Logger& get_logger();
 
             /**
-             * Retrieves the priority for a started device
+             * Retrieves the priority for a starting device
              */
             int get_priority_counter();
 
@@ -131,7 +130,7 @@ namespace domoticdevices {
              * @param device_name The name of the device to set the start timer to
              * @throws `invalid_argument` if device is not present
              */
-            void set_timer(const int time, const std::string device_name);
+            void set_timer(const int start_timer, const std::string device_name);
 
             /**
              * Sets the stop timer for the specified device identified
@@ -191,9 +190,9 @@ namespace domoticdevices {
             void subscribe(Device& device);
 
             /**
-             * Used by devices to update the current power
-             * load of the home.
-             * @param consumption_delta The variation in consumption [+ more load, - less load]
+             * Used by devices to inform of a device event
+             * and update home's power consumption.
+             * @param caller The calling device
              */
             void update(Device& caller);
     };

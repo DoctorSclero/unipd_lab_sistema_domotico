@@ -17,7 +17,7 @@ namespace domoticdevices {
         public:
             /**
              * @param name The name of the device
-             * @param power The power of the device (< 0 if consumes, > 0 if produces)
+             * @param power The power of the device (positive for producers, negative for consumers)
              * @param keep_on True if the device should be kept on when auto power off is activated, false otherwise
              * @param cycle_duration The cycle duration of the device, must be > 0
              * @throws bad_cycle_duration
