@@ -40,16 +40,17 @@ namespace domoticdevices {
         if(!home_) 
             throw device_not_subscribed(name_);
         
+        /**
+         * Adds the power consumed/generated in a minute,
+         * excluding the minute the device is started
+         */
+        if(running_)
+            total_energy_ += power_ / 60;
+            
         if (home_->get_time() == start_timer_) 
             start();
         else if (home_->get_time() == start_time_ + cycle_duration_) 
             stop();
         
-        /**
-         * Adds the power consumed/generated in a minute,
-         * excluding the minute the device is started
-         */
-        if(running_ && start_time_ != home_->get_time())
-            total_energy_ += power_ / 60;
     }
 }

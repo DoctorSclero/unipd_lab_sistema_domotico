@@ -8,7 +8,7 @@
 #include "utils.h"
 
 #include <sstream>
-#include <cmath>
+#include <iomanip>
 
 namespace domoticdevices {
     
@@ -81,6 +81,14 @@ namespace domoticdevices {
     }
 
     /**
+     * Retrieves the total energy generated/consumed
+     * @return The total energy
+     */
+    double Device::get_total_energy() const {
+        return total_energy_;
+    }
+
+    /**
      * Retrieves the running state of the Device
      * @return True if the Device is running, false otherwise
      */
@@ -142,6 +150,7 @@ namespace domoticdevices {
             //gets the priority to be assigned from the home
             if(priority_ != -1)
                 priority_ = home_->get_priority_counter();
+            
             start_time_ = home_->get_time();
             running_ = true;
 
@@ -210,7 +219,8 @@ namespace domoticdevices {
     std::string Device::to_string() const{
         std::stringstream res;
 
-        res << "Il dispositivo '" << name_ << (power_ >= 0 ? "' ha generato " : "' ha consumato ") << abs(total_energy_) << "kWh" << std::endl;
+        res << "Il dispositivo '" << name_ << (power_ >= 0 ? "' ha generato " : "' ha consumato ");
+        res << (total_energy_ < 0 ? total_energy_ * -1 : total_energy_) << " kWh";
 
         return res.str();
     }

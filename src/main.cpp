@@ -95,7 +95,7 @@ void print_help() {
 
 int main(){
     // Home setup
-    constexpr double MAX_HOME_POWER = 0;
+    constexpr double MAX_HOME_POWER = 3.5;
     const char* LOGFILE_PATH = "home.log";
 
     domoticdevices::Home home(MAX_HOME_POWER, LOGFILE_PATH);

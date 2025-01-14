@@ -171,8 +171,25 @@ namespace domoticdevices {
         this->get_logger().log("L'orario attuale e' " + timetostr(this->get_time()));
         // Appending the show of single devices
         std::stringstream ss;
+
+        // Calculating generation and consumation
+        double generated = 0;
+        double consumed = 0;
         for (Device* device : this->devices_) {
-            ss << device->to_string();
+            if(device->get_total_energy() > 0) generated += device->get_total_energy();
+            else consumed -= device->get_total_energy();
+        }
+        ss << "Attualmente il sistema ha prodotto " << generated << " kWh e consumato " << consumed << " kWh. ";
+        ss << "Nello specifico:" << std::endl;
+
+        // Appending devices
+        auto device = this->devices_.begin();
+        while (device != this->devices_.end()) {
+            ss << "\t- " << (*device)->to_string();
+            if (device != this->devices_.end()-1) {
+                ss << std::endl;
+            }
+            device++;
         }
         // Logging
         this->get_logger().log(ss.str());
@@ -207,6 +224,7 @@ namespace domoticdevices {
         
         // Resetting the time of the house
         this->current_time_ = 0;
+        this->get_logger().log("L'orario attuale e' " + timetostr(this->get_time()));
     }
 
     void Home::reset_timer(std::string device_name) {
@@ -267,14 +285,21 @@ namespace domoticdevices {
         sort_devices(this->devices_);
 
         // Updating the total power consumed
-        if (caller.is_running()) this->current_load_ -= caller.get_power();
-        else this->current_load_ += caller.get_power();
+        if (caller.is_running()) this->current_load_ -= caller.get_power(); // Device was started
+        else { // Device was stopped
+            this->current_load_ += caller.get_power();
 
-        // Updating devices priority of next
-        auto device = this->devices_.rbegin();
-        while ((*device)->is_running() && device != this->devices_.rend()) {
-            caller.decrease_priority();
-            device++;
+            // Updating priority of shut non-keep-on devices
+            if (caller.get_priority() == 0) {
+                // Update the global counter
+                this->priority_counter_--;
+                // Reducing priority of running devices
+                auto device = this->devices_.rbegin();
+                while ((*device)->is_running() && device != this->devices_.rend()) {
+                    caller.decrease_priority();
+                    device++;
+                }
+            }
         }
 
         // Shutting down devices if house power network is overloaded by priority
@@ -283,6 +308,7 @@ namespace domoticdevices {
 
             while (current_load_ > network_power_ && device != this->devices_.rend()) {
                 if ((*device)->is_running()) {
+                    this->priority_counter_--;
                     current_load_ += (*device)->get_power();
                     (*device)->force_stop();
                 }

@@ -108,6 +108,12 @@ namespace domoticdevices {
             double get_power() const;
 
             /**
+             * Retrieves the total energy generated/consumed
+             * @return The total energy
+             */
+            double get_total_energy() const;
+
+            /**
              * Retrieves the running state of the Device
              * @return True if the Device is running, false otherwise
              */
