@@ -200,6 +200,9 @@ namespace domoticdevices {
             device->reset();
         }
 
+        // ! Problematic breaks class integrity
+        Device::reset_priority_counter();
+
         // Resetting the time of the house
         this->current_time_ = 0;
     }
