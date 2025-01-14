@@ -58,6 +58,7 @@ namespace domoticdevices {
 
             std::vector<Device*> devices_;
             int current_time_;
+            int priority_counter_;
             double network_power_;
             double current_load_;
             Logger logger_;
@@ -74,7 +75,7 @@ namespace domoticdevices {
              ***************************************************/
 
             Home(const double network_power, const char* logfile_path)
-            : network_power_{network_power}, logger_{logfile_path, this}, current_time_{0} {}
+            : network_power_{network_power}, logger_{logfile_path, this}, current_time_{0}, priority_counter_{1} {}
 
             /***************************************************
              * Getters
@@ -92,6 +93,11 @@ namespace domoticdevices {
              * @returns A reference to the logger
              */
             Logger& get_logger();
+
+            /**
+             * Retrieves the priority for a started device
+             */
+            int get_priority_counter();
 
             /****************************************************
              * Command interface
@@ -189,7 +195,7 @@ namespace domoticdevices {
              * load of the home.
              * @param consumption_delta The variation in consumption [+ more load, - less load]
              */
-            void update(const double consumption_delta);
+            void update(Device& caller);
     };
 
 }

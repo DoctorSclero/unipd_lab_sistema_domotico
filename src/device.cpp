@@ -18,11 +18,6 @@ namespace domoticdevices {
     int Device::id_counter_ = 0;
 
     /**
-     * initializes the counter for the priority to 1
-     */
-    int Device::priority_counter_ = 1;
-
-    /**
      * sets the start timers only if the new timer 
      * is greater than the current time and less than or equal to MINUTES_IN_DAY
      * @param start_timer The new start timer to be set
@@ -44,6 +39,11 @@ namespace domoticdevices {
 
         //logging
         home_->get_logger().log("Impostato un timer per il dispositivo '" + name_ + "' dalle " + timetostr(start_timer));
+    }
+
+    void Device::decrease_priority(){
+        if(priority_ > 0)
+            priority_--;
     }
 
     /**
@@ -73,6 +73,14 @@ namespace domoticdevices {
     }
 
     /**
+     * Retrieves the power of the device
+     * @return The power of the device
+     */
+    double Device::get_power() const {
+        return power_;
+    }
+
+    /**
      * Retrieves the running state of the Device
      * @return True if the Device is running, false otherwise
      */
@@ -90,14 +98,23 @@ namespace domoticdevices {
     }
 
     /**
-     * checks equality between two devices based on their names
+     * checks equality between two devices based on their ids
      * @param other_device the other Device wihich is being confronted
-     * @return true if the devices have the same name, false otherwise
+     * @return true if the devices have the same id, false otherwise
      */
     bool Device::operator==(const Device& other_device) const {
-        return (this->name_ == other_device.name_);
+        return (this->id_ == other_device.id_);
     }
 
+    /**
+     * checks inequality between two devices based on their ids
+     * @param other_device the other Device wihich is being confronted
+     * @return true if the devices have different id, false otherwise
+     */
+    bool Device::operator!=(const Device& other_device) const {
+        return (this->id_ != other_device.id_);
+    }
+    
     /**
      * checks equality between a device's name and a string
      * @param other_name the string which is supposed to contain a name of a device
@@ -122,25 +139,26 @@ namespace domoticdevices {
             throw device_not_subscribed(name_);
 
         if(!running_){
-            //Maintaining "keep on" priority 
+            //gets the priority to be assigned from the home
             if(priority_ != -1)
-                priority_ = priority_counter_++;
-
+                priority_ = home_->get_priority_counter();
             start_time_ = home_->get_time();
             running_ = true;
 
             //logging
             home_->get_logger().log("Il dispositivo '" + name_ + "' si e' acceso");
-            //update the home about the power change
-            home_->update(-power_);
+            //update the home about the status change
+            home_->update(*this);
         }
     }
 
     /**
-     * stops the device only if the device is running
-     * and updates the home about the power change
+     * Force stops the device and logs the event.
+     * This is necessary for home to implement
+     * the automatic shut down logic
+     * @throws device_not_subscribed
      */
-    void Device::stop(){
+    void Device::force_stop(){
         /**
          * The home isn't set in the costructor, so
          * its is mandatory to check wheter the home
@@ -149,18 +167,28 @@ namespace domoticdevices {
         if(!home_) 
             throw device_not_subscribed(name_);
 
-        if(running_){
-            // Maintaining "keep on" priority
-            if (priority_ > 0) 
-                priority_ = 0;
+        // Maintaining "keep on" priority
+        if (priority_ > 0) 
+            priority_ = 0;
 
-            running_ = false;
-            start_time_ = -1;
+        running_ = false;
+        start_time_ = -1;
 
-            //logging
-            home_->get_logger().log("Il dispositivo '" + name_ + "' si e' spento");
-            //update the home about the power change
-            home_->update(power_);
+        //logging
+        home_->get_logger().log("Il dispositivo '" + name_ + "' si e' spento");
+        //update the home about the status change
+    }
+
+    /**
+     * Stops the device only if it is running
+     * Calls force_stop() to reuse the code 
+     * Updates the home about the status change
+     * @throws device_not_subscribed
+     */
+    void Device::stop() {
+        if (running_) {
+            force_stop();
+            home_->update(*this);
         }
     }
 
@@ -196,18 +224,5 @@ namespace domoticdevices {
 
         //logging
         home_->get_logger().log("Rimosso il timer dal dispositivo '" + name_ + "'");
-    }
-
-    /**
-     * Static function
-     * This function is used strictly from home, only when
-     * the reset time command is called, because the complete
-     * reset to the initial state is required.
-     * IMPORTANT: When this function is called every device in the home 
-     * should be turned off, otherwise the automatic shut down priority would be
-     * violated and wouldn't work correctly later on.
-     */
-    void Device::reset_priority_counter() {
-        Device::priority_counter_ = 1;
     }
 }

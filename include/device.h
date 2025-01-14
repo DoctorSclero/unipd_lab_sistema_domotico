@@ -22,14 +22,6 @@ namespace domoticdevices {
              */
             static int id_counter_;
 
-            /**
-             * Counter used to assign a unique priority to 
-             * devices when they turn on.
-             * Increases by one on every device startup, 
-             * unless the device has priority_ = -1 (keep_on).
-             * Never decreases to ensure unique ordering.
-             */
-            static int priority_counter_;
             int id_;
             std::string name_;
 
@@ -86,6 +78,8 @@ namespace domoticdevices {
              */
             void set_timer(const int start_timer);
 
+            void decrease_priority();
+
             /**
              * House observer, subscribes an house
              * to handle device status changes
@@ -108,6 +102,12 @@ namespace domoticdevices {
             int get_priority() const;
 
             /**
+             * Retrieves the power of the device
+             * @return The power of the device
+             */
+            double get_power() const;
+
+            /**
              * Retrieves the running state of the Device
              * @return True if the Device is running, false otherwise
              */
@@ -121,11 +121,18 @@ namespace domoticdevices {
             bool operator<(const Device& other_device) const;
 
             /**
-             * checks equality between two devices based on their names
+             * checks equality between two devices based on their ids
              * @param other_device the other Device wihich is being confronted
-             * @return true if the devices have the same name, false otherwise
+             * @return true if the devices have the same id, false otherwise
              */
             bool operator==(const Device& other_device) const;
+
+            /**
+             * checks inequality between two devices based on their ids
+             * @param other_device the other Device wihich is being confronted
+             * @return true if the devices have different id, false otherwise
+             */
+            bool operator!=(const Device& other_device) const;
 
             /**
              * checks equality between a device's name and a string
@@ -142,8 +149,17 @@ namespace domoticdevices {
             void start();
 
             /**
-             * stops the device only if the device is running
-             * and updates the home about the power change
+             * Force stops the device and logs the event.
+             * This is necessary for home to implement
+             * the automatic shut down logic
+             * @throws device_not_subscribed
+             */
+            void force_stop();
+
+            /**
+             * Stops the device only if it is running
+             * Calls force_stop() to reuse the code 
+             * Updates the home about the status change
              * @throws device_not_subscribed
              */
             void stop();
@@ -174,11 +190,6 @@ namespace domoticdevices {
              * and stop on their own
              */
             virtual void update() = 0;
-
-            /**
-             * Static functions
-             */
-            static void reset_priority_counter();
     };
 }
 

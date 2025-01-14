@@ -49,6 +49,10 @@ namespace domoticdevices {
         return this->logger_;
     }
 
+    int Home::get_priority_counter() {
+        return this->priority_counter_++;
+    }
+
     void Home::start_device(const std::string device_name) {
         auto device = find_if(
             this->devices_.begin(), 
@@ -195,14 +199,12 @@ namespace domoticdevices {
     
     void Home::reset_time() {
         this->get_logger().log("L'orario attuale e' " + timetostr(this->get_time()));
+
         // Stopping all devices
         for (Device* device : this->devices_) {
             device->reset();
         }
-
-        // ! Problematic breaks class integrity
-        Device::reset_priority_counter();
-
+        
         // Resetting the time of the house
         this->current_time_ = 0;
     }
@@ -259,27 +261,34 @@ namespace domoticdevices {
         }
     }
 
-    void Home::update(const double consumption_delta) {
+    void Home::update(Device& caller) {
         
         // Sorting the devices by priority
         sort_devices(this->devices_);
 
         // Updating the total power consumed
-        this->current_load_ += consumption_delta;
+        if (caller.is_running()) this->current_load_ -= caller.get_power();
+        else this->current_load_ += caller.get_power();
 
-        // Shutting down devices if house power network is overloaded
-        if (this->current_load_ > this->network_power_) {
-            auto device = this->devices_.end()-1;
-
-            // Preventing segmentation fault when all device running are keep_on
-            while (!(*device)->is_running() && device != this->devices_.begin()) device--;
-
-            // Recursion happens since stop_device calls back Home::update
-            // this leads to the home shutting all necessary devices to stay
-            // under the power line threshold
-            stop_device((*(device))->get_name());
+        // Updating devices priority of next
+        auto device = this->devices_.rbegin();
+        while ((*device)->is_running() && device != this->devices_.rend()) {
+            caller.decrease_priority();
+            device++;
         }
 
+        // Shutting down devices if house power network is overloaded by priority
+        if (this->current_load_ > this->network_power_) {
+            auto device = this->devices_.rbegin();
+
+            while (current_load_ > network_power_ && device != this->devices_.rend()) {
+                if ((*device)->is_running()) {
+                    current_load_ += (*device)->get_power();
+                    (*device)->force_stop();
+                }
+                device++;
+            }
+        }
     }
 
     /******************************************************
